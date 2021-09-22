@@ -1,6 +1,6 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
-let mainWindow, generatorWindow;
+let mainWindow, generatorWindow, debugWindow;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -36,6 +36,21 @@ const createGeneratorWindow = () => {
   mainWindow.webContents.openDevTools();
 };
 
+const createDebugWindow = () => {
+  debugWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    show: false,
+    webPreferences: {
+	nodeIntegration: true,
+	contextIsolation: false,
+	preload: path.join(__dirname, '/debug_window/index.js'),
+    }
+  });
+  debugWindow.loadFile(path.join(__dirname, '/debug_window/index.html'));
+
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -44,6 +59,7 @@ const createGeneratorWindow = () => {
 const createWindows = ()  => {
   createMainWindow();
   createGeneratorWindow();
+  createDebugWindow();
 }
 
 let template = [{
@@ -68,6 +84,14 @@ let template = [{
     label: 'Служебная связь',
     accelerator: 'F3',
     role: 'service-comm'
+  }, {
+    label: 'Debugg window',
+    accelerator: 'F4',
+    role: 'debugg',
+    click: () => {
+      mainWindow.hide();
+      debugWindow.show();
+    }
   }]
 }];
 
