@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Debugg Window</title>
+    <link rel="stylesheet" href="index.css">
+    <script>window.$ = window.jQuery = require('jquery')</script>
+  </head>
+  <body>
+    <div class="screens dialog-frame" id="mode-select" style="display: none;">
+      <div class="dialog-content">
+        <select size="4" multiple autofocus>
+          <option value="TONE_SIGNAL_MEASUREMENT">&#1048;&#1047;&#1052;&#1045;&#1056;&#1045;&#1053;&#1048;&#1045; &#1057;&#1048;&#1043;&#1053;&#1040;&#1051;&#1040; &#1058;&#1063;</option>
+          <option value="SIGNAL_TO_NOISE_MEASUREMENT">&#1048;&#1047;&#1052;&#1045;&#1056;&#1045;&#1053;&#1048;&#1045; &#1054;&#1058;&#1053;&#1054;&#1064;&#1045;&#1053;&#1048;&#1071; &#1057;&#1048;&#1043;&#1053;&#1040;&#1051;/&#1064;&#1059;&#1052;</option>
+          <option value="FREE_CHANNEL_NOISE_MEASUREMENT">&#1048;&#1047;&#1052;&#1045;&#1056;&#1045;&#1053;&#1048;&#1045; &#1064;&#1059;&#1052;&#1040; &#1057;&#1042;&#1054;&#1041;&#1054;&#1044;&#1053;&#1054;&#1043;&#1054; &#1050;&#1040;&#1053;&#1040;&#1051;&#1040;</option>
+          <option value="FREQUENCY_RESPONSE_MEASUREMENT">&#1048;&#1047;&#1052;&#1045;&#1056;&#1045;&#1053;&#1048;&#1045; &#1063;&#1040;&#1057;&#1058;&#1054;&#1058;&#1053;&#1054;&#1049; &#1061;&#1040;&#1056;&#1040;&#1050;&#1058;&#1045;&#1056;&#1048;&#1057;&#1058;&#1048;&#1050;&#1048;</option>
+        </select>
+      </div>
+    </div>
+    <div class="screens" id="splash-screen" style="display: none;">
+      <section>MORION St.</section>
+      <section>Telecom System</section>
+      <section>Fax 342 227-19-16</section>
+      <section>Russia Perm</section>
+    </div>
+    <div class="screens" id="test-screen" style="display: none;">
+      <section id="opk_soft_version">Тест ОПК версия ПО ... </section>
+      <section id="switch_soft_version">Тест коммутатора версия ПО... </section>
+      <section id="dsp_soft_version">Тест DSP версия ПО... </section>
+      <section id="channel">Тест канала... </section>
+    </div>
+    <div class="screens dialog-frame" id="error-dialog" style="display: none;">
+      <div class="dialog-content">
+        Продолжить работу, не смотря на предупреждения?
+      </div>
+    </div>
+    <div class="screens" id="measurement-screen" style="display: none;">
+      <canvas width="800" height="480"></canvas>
+    </div>
+  </body>
+</html>
