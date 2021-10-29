@@ -23,10 +23,11 @@ const KEY_9     = 153;
 const KEY_0     = 154;
 const KEY_ENTER = 156;
 
-const STATE_INITIAL         = 1;
-const STATE_MODE_DIALOG     = 2;
-const STATE_ERROR_DIALOG    = 3;
-const STATE_MEASUREMENT     = 4;
+const STATE_INITIAL             = 1;
+const STATE_MODE_DIALOG         = 2;
+const STATE_ERROR_DIALOG        = 3;
+const STATE_MEASUREMENT         = 4;
+//const STATE_MEASUREMENT_STARTED = 4;
 
 const MODE_SPLASH_SCREEN    = 1;
 const MODE_TEST_INFO        = 2;
@@ -102,6 +103,13 @@ const eventLoop = (key) => {
                 case KEY_MEASURE: 
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index]});
                     state = STATE_MODE_DIALOG;
+                break;
+                case KEY_START:
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        screen: 'MEASUREMENT', 
+                        value: mode_measurement_values_table[mode_measurement_index],
+                        data: [{x: -50, y: 15},{x: -40, y: 35},{x: -30, y: 15},{x: -10, y: 22},{x: 5, y: 15},]
+                    });
                 break;
             }
         break;

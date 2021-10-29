@@ -11,7 +11,7 @@
 }
 
 .dialog-content {
-    background: white;
+    background: none;
     opacity: 100%;
     position: relative;
     top: 30%;
@@ -24,7 +24,22 @@
     font-size: 37px;
 }
 
+.screens {
+    font-size: 37px;
+}
+
 #mode-select .dialog-content select{
     overflow: hidden;
     border: none;
 }
+
+#splash-screen, #test-screen {
+    background: none;
+    opacity: 100%;
+    position: relative;
+    top: 30%;
+    left: 8%;
+    width: 70%;
+    height: 10%;
+}
+
