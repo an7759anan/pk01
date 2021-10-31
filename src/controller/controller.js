@@ -37,7 +37,8 @@ const mode_measurement_values_table = [
     'TONE_SIGNAL_MEASUREMENT',
     'SIGNAL_TO_NOISE_MEASUREMENT',
     'FREE_CHANNEL_NOISE_MEASUREMENT',
-    'FREQUENCY_RESPONSE_MEASUREMENT'
+    'FREQUENCY_RESPONSE_MEASUREMENT',
+    'AMPLITUDE_RESPONSE_MEASUREMENT'
 ];
 let mode_measurement_index = 0;
 let stop_clicks = 0;
