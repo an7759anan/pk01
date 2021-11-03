@@ -13,15 +13,20 @@ exports.drawPicture = (dataModel) => {
 };
 
 exports.drawData = (dataModel, data) => {
+    let path_top, path_bottom;
     ctx.save();
-//    let path = createPath(dataModel, dataModel.bottomBoundary);
-    let path = createPath(dataModel, dataModel.boundaries[0].line); // TODO now only for SNM !
-//    path.closePath();
+    let bound = dataModel.boundaries.find(b => b.type == 'top');
+    if (bound) path_top = createPath(dataModel, bound.line);
+    bound = dataModel.boundaries.find(b => b.type == 'bottom');
+    if (bound) path_bottom = createPath(dataModel, bound.line);
     data.forEach(p => {
         let pp = calculateXY(dataModel.axisX.min,dataModel.axisX.max,dataModel.axisY.min,dataModel.axisY.max,p);
         ctx.beginPath();
-        ctx.fillStyle = ctx.isPointInPath(path, pp.x, pp.y)? 'red':'green';
-        ctx.arc(pp.x,pp.y,10,0,2*Math.PI);
+        let color = path_top || path_bottom? 'green':'black';
+        if (path_top && ctx.isPointInPath(path_top, xv(pp.x), yv(pp.y))) color = 'red'; 
+        if (path_bottom && ctx.isPointInPath(path_bottom, xv(pp.x), yv(pp.y))) color = 'red';
+        ctx.fillStyle = color;
+        ctx.arc(xv(pp.x),yv(pp.y),10,0,2*Math.PI);
         ctx.stroke();
         ctx.closePath();
         ctx.fill();
@@ -119,7 +124,7 @@ const signYaxis = (dataModel) => {
     ctx.restore();
 }
 
-const createPath = (dataModel, points) => {
+const createPath = (dataModel, points, max_point) => {
     let path = new Path2D();
 //    let points = dataModel.bottomBoundary;
     let length = points.length;

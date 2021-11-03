@@ -95,6 +95,7 @@ const dataModels = {
                     {x: -30, y: 33},
                     {x:   0, y: 33},
                     {x:   0, y:  0},
+                    {x: -45, y: 0} // round part
                 ],
                 shadow: [
                     {x: -44, y:  0},
@@ -133,7 +134,8 @@ const dataModels = {
                     {x: 3000, y: .9},
                     {x: 3000, y: 1.8},
                     {x: 3400, y: 1.8},
-                    {x: 3400, y: 2}
+                    {x: 3400, y: 2},
+                    {x: 300,  y: 2} // round part
                 ],
                 shadow: [
                     {x: 350, y:  2},
@@ -155,6 +157,9 @@ const dataModels = {
                     {x: 3600, y: -.5},
                     {x: 3600, y: 0},
                     {x: 3800, y: 0},
+                    {x: 3800, y: -1},// round part
+                    {x: 0,    y: -1},
+                    {x: 0,    y: 0}
                 ],
                 shadow: [
                     {x: 0, y:  -.085},

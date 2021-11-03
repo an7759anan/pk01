@@ -106,11 +106,26 @@ const eventLoop = (key) => {
                     state = STATE_MODE_DIALOG;
                 break;
                 case KEY_START:
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                        screen: 'MEASUREMENT', 
-                        value: mode_measurement_values_table[mode_measurement_index],
-                        data: [{x: -50, y: 15},{x: -40, y: 35},{x: -30, y: 15},{x: -10, y: 22},{x: 5, y: 15},]
-                    });
+                    let mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
+                    let data_to_draw;
+                    switch (mode_measurement_value){
+                        case 'SIGNAL_TO_NOISE_MEASUREMENT':
+                            data_to_draw = [{x: -50, y: 15},{x: -40, y: 35},{x: -30, y: 15},{x: -10, y: 22},{x: 5, y: 15},];
+                        break;
+                        case 'FREQUENCY_RESPONSE_MEASUREMENT':
+                            data_to_draw = [{x: 100, y: 1.8},{x: 200, y: .25},{x: 1020, y: 0},{x: 1200, y: .7},{x: 2450, y: -.7},{x: 3200, y: 1},{x: 3600, y: 1.8}];
+                        break;
+                        case 'AMPLITUDE_RESPONSE_MEASUREMENT':
+                            data_to_draw = [{x: -50, y: 15},{x: -40, y: 35},{x: -30, y: 15},{x: -10, y: 22},{x: 5, y: 15},];
+                        break;
+                    }
+                    if (data_to_draw){
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                            screen: 'MEASUREMENT', 
+                            value: mode_measurement_value,
+                            data: data_to_draw
+                        });
+                    }
                 break;
             }
         break;
