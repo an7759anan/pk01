@@ -41,7 +41,6 @@ const drawGrid = (dataModel) => {
     for(const bound of dataModel.boundaries) {
         drawBoundaryLine(dataModel, bound);
     }
-//    drawBottomBoundaryLine2(dataModel);
     if(dataModel.axisX.step){
         ctx.beginPath();
         let xPointsNum = (dataModel.axisX.max - dataModel.axisX.min)/dataModel.axisX.step;
@@ -66,7 +65,6 @@ const drawGrid = (dataModel) => {
     }
     signXaxis(dataModel);
     signYaxis(dataModel);
-//    drawBottomBoundaryLine(dataModel);
     drawAdditionalMarks(dataModel);
     ctx.strokeRect(gridX0,gridY0,gridWidth,gridHeight);
     ctx.strokeRect(0,0,canvas.width, canvas.height);
@@ -124,10 +122,9 @@ const signYaxis = (dataModel) => {
     ctx.restore();
 }
 
-const createPath = (dataModel, points, max_point) => {
+const createPath = (dataModel, points, max_point = Number.MAX_VALUE) => {
     let path = new Path2D();
-//    let points = dataModel.bottomBoundary;
-    let length = points.length;
+    let length = Math.min(points.length,max_point);
     for (let i = 0; i < length - 1; i++){
         let p1 = points[i];
         let p2 = points[i + 1];
@@ -144,20 +141,12 @@ const createPath = (dataModel, points, max_point) => {
 const drawBoundaryLine = (dataModel, bound) => {
     ctx.save();
     ctx.lineWidth = 2;
-    ctx.stroke(createPath(dataModel, bound.line));
+    ctx.stroke(createPath(dataModel, bound.line, bound.shadow? bound.shadow.length:undefined));
     ctx.lineWidth = DIAG_STROKE_WIDTH;
     ctx.strokeStyle = diagPattern;
     ctx.stroke(createPath(dataModel, bound.shadow));
     ctx.restore();
 }
-
-// const drawBottomBoundaryLine2 = (dataModel) => {
-//     ctx.save();
-//     ctx.lineWidth = DIAG_STROKE_WIDTH;
-//     ctx.strokeStyle = diagPattern;
-//     ctx.stroke(createPath(dataModel, dataModel.bottomBoundary2));
-//     ctx.restore();
-// }
 
 const drawAdditionalMarks = (dataModel) => {
     ctx.save();
