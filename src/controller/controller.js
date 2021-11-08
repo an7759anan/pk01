@@ -1,6 +1,6 @@
 const { ipcMain } = require ('electron');
 const { tca8418_configure } = require('../drivers/tca8418/tca8418_driver');
-//const view = require ('../main_window/index.js');
+const { settings, dataModels } = require('../model/data_model');
 
 const KEY_START = 129;
 const KEY_GEN   = 130;
@@ -27,11 +27,13 @@ const STATE_INITIAL             = 1;
 const STATE_MODE_DIALOG         = 2;
 const STATE_ERROR_DIALOG        = 3;
 const STATE_MEASUREMENT         = 4;
-//const STATE_MEASUREMENT_STARTED = 4;
+const STATE_SETTINGS            = 5;
+const STATE_SETTINGS_EDIT_MODE  = 6;
 
-const MODE_SPLASH_SCREEN    = 1;
-const MODE_TEST_INFO        = 2;
-const MODE_MEASUREMENT      = 3;
+const MODE_SPLASH_SCREEN        = 1;
+const MODE_TEST_INFO            = 2;
+const MODE_MEASUREMENT_GRAPHIC  = 3;
+const MODE_MEASUREMENT_TABLE    = 4;
 
 const mode_measurement_values_table = [
     'TONE_SIGNAL_MEASUREMENT',
@@ -44,6 +46,7 @@ let mode_measurement_index = 0;
 let stop_clicks = 0;
 let sun_clicks = 0;
 let view, mode, state;
+let settings_prop = "gen-freq-val";
 
 const eventLoop = (key) => {
     if(key == KEY_STOP){
@@ -72,6 +75,90 @@ const eventLoop = (key) => {
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index]});
                     state = STATE_MODE_DIALOG;
                 break;
+                case KEY_SUN:
+                    settings_prop = "gen-freq-val";
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', show: true, value: settings_prop, data: settings});
+                    state = STATE_SETTINGS;
+                break;
+            }
+        break;
+        case STATE_SETTINGS:
+            switch(key){
+                case KEY_SUN:
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MEASUREMENT_GRAPHIC', show: true, value: mode_measurement_values_table[mode_measurement_index]});
+                    state = STATE_MEASUREMENT;
+                    mode = MODE_MEASUREMENT_GRAPHIC;
+                break;
+                case KEY_ENTER:
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop, edit: true});
+                    state = STATE_SETTINGS_EDIT_MODE;
+                break;
+                case KEY_MEASURE:
+                    settings_prop = "mes-freq-val";
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop});
+                break;
+                case KEY_GEN:
+                    settings_prop = "gen-freq-val";
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop});
+                break;
+                case KEY_UP:
+                    if (settings[settings_prop].next.up){
+                        settings_prop = settings[settings_prop].next.up;
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop});
+                    }
+                break;
+                case KEY_DOWN:
+                    if (settings[settings_prop].next.down){
+                        settings_prop = settings[settings_prop].next.down;
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop});
+                    }
+                break;
+                case KEY_LEFT:
+                    if (settings[settings_prop].next.left){
+                        settings_prop = settings[settings_prop].next.left;
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop});
+                    }
+                break;
+                case KEY_RIGHT:
+                    if (settings[settings_prop].next.right){
+                        settings_prop = settings[settings_prop].next.right;
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop});
+                    }
+                break;
+            }
+        break;
+        case STATE_SETTINGS_EDIT_MODE:
+            switch(key){
+                case KEY_ENTER:
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop, edit: false});
+                    state = STATE_SETTINGS;
+                break;
+                case KEY_UP:
+                    let prop = settings[settings_prop];
+                    switch(prop.type){
+                        case "integer":
+                        case "float":
+                            prop.val = Math.min(prop.range.max, prop.val + prop.step);
+                        break;
+                        case "enum":
+                            prop.val = Math.min(prop.values.length - 1, prop.val + 1); 
+                        break;
+                    }
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: settings});
+                break;
+                case KEY_DOWN:
+                    let prop2 = settings[settings_prop];
+                    switch(prop2.type){
+                        case "integer":
+                        case "float":
+                            prop2.val = Math.max(prop2.range.min, prop2.val - prop2.step);
+                        break;
+                        case "enum":
+                            prop2.val = Math.max(0, prop2.val - 1); 
+                        break;
+                    }
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: settings});
+                break;
             }
         break;
         case STATE_ERROR_DIALOG:
@@ -86,8 +173,9 @@ const eventLoop = (key) => {
             switch(key){
                 case KEY_ENTER:
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: false});
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MEASUREMENT', show: true, value: mode_measurement_values_table[mode_measurement_index]});
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MEASUREMENT_GRAPHIC', show: true, value: mode_measurement_values_table[mode_measurement_index]});
                     state = STATE_MEASUREMENT;
+                    mode = MODE_MEASUREMENT_GRAPHIC;
                 break;
                 case KEY_UP:
                     mode_measurement_index = Math.max(0, --mode_measurement_index);
@@ -100,31 +188,43 @@ const eventLoop = (key) => {
             }
         break;
         case STATE_MEASUREMENT:
+            let mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
             switch(key){
+                case KEY_SUN:
+                    settings_prop = "gen-freq-val";
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', show: true, value: settings_prop});
+                    state = STATE_SETTINGS;
+                break;
                 case KEY_MEASURE: 
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index]});
                     state = STATE_MODE_DIALOG;
                 break;
                 case KEY_START:
-                    let mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
-                    let data_to_draw;
-                    switch (mode_measurement_value){
-                        case 'SIGNAL_TO_NOISE_MEASUREMENT':
-                            data_to_draw = [{x: -50, y: 15},{x: -40, y: 35},{x: -30, y: 15},{x: -10, y: 22},{x: 5, y: 15},];
-                        break;
-                        case 'FREQUENCY_RESPONSE_MEASUREMENT':
-                            data_to_draw = [{x: 100, y: 1.8},{x: 200, y: .25},{x: 1020, y: 0},{x: 1200, y: .7},{x: 2450, y: -.7},{x: 3200, y: 1},{x: 3600, y: 1.8}];
-                        break;
-                        case 'AMPLITUDE_RESPONSE_MEASUREMENT':
-                            data_to_draw = [{x: -65, y: -3},{x: -60, y: 3},{x: -55, y: .7},{x: -45, y: -.6},{x: -35, y: .6},{x:-20,y:.4},{x:-9,y:.2}];
-                        break;
-                    }
-                    if (data_to_draw){
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        show: true,
+                        screen: 'MEASUREMENT_GRAPHIC', 
+                        value: mode_measurement_value,
+                        data: true
+                    });
+                break;
+                case KEY_LEFT:
+                case KEY_RIGHT:
+                    if (mode == MODE_MEASUREMENT_GRAPHIC){
                         view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                            screen: 'MEASUREMENT', 
+                            show: true,
+                            screen: 'MEASUREMENT_TABLE', 
                             value: mode_measurement_value,
-                            data: data_to_draw
+                            data: true
                         });
+                        mode = MODE_MEASUREMENT_TABLE;
+                    } else {
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                            show: true,
+                            screen: 'MEASUREMENT_GRAPHIC', 
+                            value: mode_measurement_value,
+                            data: true
+                        });
+                        mode = MODE_MEASUREMENT_GRAPHIC;
                     }
                 break;
             }
@@ -214,7 +314,9 @@ const init = (mainWindow) => {
             tca8418_configure(0x0007,0x00ff, reg => {
                 eventLoop(reg);
             }).
-            then(data => console.log(data)).
+            then(data => {
+                console.log(data);
+            }).
             catch(data => console.log(data));
         });
     }, 3000);

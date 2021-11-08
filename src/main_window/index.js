@@ -42,7 +42,7 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
             case 'ERROR_DIALOG':
                 if (message.show == true) $('#error-dialog').show();
             break;
-            case 'MEASUREMENT':
+            case 'MEASUREMENT_GRAPHIC':
                 if (message.show == true) $('#measurement-screen').show();
                 if (message.value){
                     switch(message.value){
@@ -56,7 +56,7 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                         case 'FREQUENCY_RESPONSE_MEASUREMENT':
                         case 'AMPLITUDE_RESPONSE_MEASUREMENT':
                             if(message.data){
-                                drawData(dataModels[message.value], message.data);
+                                drawData(dataModels[message.value]);
                             } else {
                                 drawPicture(dataModels[message.value]);
                             }
@@ -64,8 +64,72 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                     }
                 }
             break;
+            case 'MEASUREMENT_TABLE': 
+                switch(message.value){
+                    case 'TONE_SIGNAL_MEASUREMENT':
+
+                    break;
+                    case 'FREE_CHANNEL_NOISE_MEASUREMENT':
+                
+                    break;
+                    case 'SIGNAL_TO_NOISE_MEASUREMENT':
+                    case 'FREQUENCY_RESPONSE_MEASUREMENT':
+                    case 'AMPLITUDE_RESPONSE_MEASUREMENT':
+                        let $table_frame = $('#measurement-table');
+                        let $table_body = $table_frame.find('table>body');
+                        if (message.show == true) $table_frame.show();
+                        renderTable(dataModels[message.value]);
+                    break;
+                }
+            break;
+            case 'SETTINGS_GRID':
+                if (message.show == true) {
+                    renderSettings(message.data);
+                    $('#settings-grid').show();
+                }
+                $('.settings-item').removeClass('focus-mode edit-mode');
+                if (message.value){
+                    $(`.${message.value}`).addClass('focus-mode');
+                    if (message.edit == true){
+                        $(`.${message.value}`).addClass('edit-mode');
+                    }
+                    if (message.data){
+                        renderSetting(message.value, message.data[message.value]);
+                    }
+                }
+            break;
         }
     }
 });
 
+const renderSetting = (prop, v) => {
+    if (v.type == 'enum'){
+        $(`.${prop} span`).text(v.values.find(vv => vv.val == v.val).name);
+    } else {
+        $(`.${prop} span`).text(v.val);
+    }
+}
+
+const renderSettings = (settings) => {
+    for (let prop in settings) {
+        if (settings.hasOwnProperty(prop)){
+            renderSetting(prop, settings[prop]);
+        }
+    }
+}
+
+const renderTable = (data_model) => {
+    let $table = $('#measurement-table');
+    let $theads = $table.find('thead th');
+    let $tbody = $table.find('tbody');
+    $theads[0].innerText = `${data_model.axisX.name}, ${data_model.axisX.units}`;
+    $theads[1].innerText = `${data_model.axisY.name}, ${data_model.axisY.units}`;
+    $tbody.find('tr').remove();
+    $tbody.append(data_model.data.map(d => `
+        <tr>
+            <td>${d.x.toLocaleString('ru',{minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td>${d.y.toLocaleString('ru',{minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        </tr>
+    `));
+}
 

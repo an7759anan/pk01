@@ -1,3 +1,17 @@
+var settings = {
+    "gen-freq-val": {val: 1020, unit: "Гц", type: "integer", range: {min: 200, max: 3500}, step: 10, next: {up: "gen-zero-val", down: "gen-tran-val", right: "mes-freq-val"}},
+    "mes-freq-val": {val: 840, unit: "Гц", type: "integer", range: {min: 200, max: 3500}, step: 10, next: {up: "mes-psf-val", down: "mes-tran-val", left: "gen-freq-val"}},
+    "gen-tran-val": {val: 0, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 10, next: {up: "gen-freq-val", down: "gen-zero-val", right: "mes-tran-val"}}, // &pm; 00
+    "mes-tran-val": {val: 0, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 10, next: {up: "mes-freq-val", down: "mes-zero-val", left: "gen-tran-val"}}, // &pm; xx,x
+    "gen-zero-val": {val: -13, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 10, next: {up: "gen-tran-val", down: "gen-freq-val", right: "mes-zero-val"}},
+    "mes-zero-val": {val: 4, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 10, next: {up: "mes-tran-val", down: "mes-voice1-val", left: "gen-zero-val"}}, // + 4
+    "mes-voice1-val": {val: 0, unit: "", type: "enum", values: [{val: 0, name: "Закрытый"}, {val: 1, name: "Открытый"}], next: {up: "mes-zero-val", down: "mes-voice2-val"}},
+    "mes-voice2-val": {val: 0, unit: "&ohm;", type: "enum", values: [{val: 0, name: "600"}, {val: 1, name: "> 30"}], next: {up: "mes-voice1-val", down: "mes-psf-val"}}, // &ohm;
+    "mes-psf-val": {val: 0, unit: "", type: "enum", values: [{val: 0, name: "Выключен"}, {val: 1, name: "Выключен"}], next: {up: "mes-voice2-val", down: "mes-freq-val"}}
+};
+
+exports.settings = settings;
+
 exports.dataModels = {
     "SIGNAL_TO_NOISE_MEASUREMENT": {
         axisX: {
@@ -37,7 +51,8 @@ exports.dataModels = {
                     {x:   -1, y:  0},
                 ]
             }
-        ]
+        ],
+        data: [{x: -50, y: 15},{x: -40, y: 35},{x: -30, y: 15},{x: -10, y: 22},{x: 5, y: 15}]
     },
     "FREQUENCY_RESPONSE_MEASUREMENT": {
         axisX: {
@@ -101,7 +116,8 @@ exports.dataModels = {
                     {x: 3800, y: -.085},
                 ]
             }
-        ]
+        ],
+        data: [{x: 100, y: 1.8},{x: 200, y: .25},{x: 1020, y: 0},{x: 1200, y: .7},{x: 2450, y: -.7},{x: 3200, y: 1},{x: 3600, y: 1.8}]
     },
     "AMPLITUDE_RESPONSE_MEASUREMENT": {
         axisX: {
@@ -178,6 +194,7 @@ exports.dataModels = {
                     {x:  3 - 1, y: -1}
                 ]
             }
-        ]
+        ],
+        data: [{x: -65, y: -3},{x: -60, y: 3},{x: -55, y: .7},{x: -45, y: -.6},{x: -35, y: .6},{x:-20,y:.4},{x:-9,y:.2}]
     }    
 }

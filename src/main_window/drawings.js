@@ -12,14 +12,14 @@ exports.drawPicture = (dataModel) => {
     drawGrid(dataModel);
 };
 
-exports.drawData = (dataModel, data) => {
+exports.drawData = (dataModel) => {
     let path_top, path_bottom;
     ctx.save();
     let bound = dataModel.boundaries.find(b => b.type == 'top');
     if (bound) path_top = createPath(dataModel, bound.line);
     bound = dataModel.boundaries.find(b => b.type == 'bottom');
     if (bound) path_bottom = createPath(dataModel, bound.line);
-    data.forEach(p => {
+    dataModel.data.forEach(p => {
         let pp = calculateXY(dataModel.axisX.min,dataModel.axisX.max,dataModel.axisY.min,dataModel.axisY.max,p);
         ctx.beginPath();
         let color = path_top || path_bottom? 'green':'black';
