@@ -29,6 +29,7 @@ const STATE_ERROR_DIALOG        = 3;
 const STATE_MEASUREMENT         = 4;
 const STATE_SETTINGS            = 5;
 const STATE_SETTINGS_EDIT_MODE  = 6;
+const STATE_MEASUREMENT_GRID    = 7;
 
 const MODE_SPLASH_SCREEN        = 1;
 const MODE_TEST_INFO            = 2;
@@ -173,9 +174,25 @@ const eventLoop = (key) => {
             switch(key){
                 case KEY_ENTER:
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: false});
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MEASUREMENT_GRAPHIC', show: true, value: mode_measurement_values_table[mode_measurement_index]});
-                    state = STATE_MEASUREMENT;
-                    mode = MODE_MEASUREMENT_GRAPHIC;
+                    if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                            screen: 'MEASUREMENT_GRID', 
+                            show: true, 
+                            value: mode_measurement_values_table[mode_measurement_index],
+                            data: {}
+                        });
+                        state = STATE_MEASUREMENT_GRID;
+                    } else {
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                            screen: 'MEASUREMENT_GRAPHIC', 
+                            show: true, 
+                            value: mode_measurement_values_table[mode_measurement_index],
+                            data: dataModels[mode_measurement_values_table[mode_measurement_index]],
+                            action: 'draw-grid'
+                        });
+                        state = STATE_MEASUREMENT;
+                        mode = MODE_MEASUREMENT_GRAPHIC;
+                    }
                 break;
                 case KEY_UP:
                     mode_measurement_index = Math.max(0, --mode_measurement_index);
@@ -184,6 +201,14 @@ const eventLoop = (key) => {
                 case KEY_DOWN:
                     mode_measurement_index = Math.min(mode_measurement_values_table.length - 1, ++mode_measurement_index);
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', value: mode_measurement_values_table[mode_measurement_index]});
+                break;
+            }
+        break;
+        case STATE_MEASUREMENT_GRID:
+            switch(key){
+                case KEY_MEASURE: 
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index]});
+                    state = STATE_MODE_DIALOG;
                 break;
             }
         break;
@@ -204,7 +229,8 @@ const eventLoop = (key) => {
                         show: true,
                         screen: 'MEASUREMENT_GRAPHIC', 
                         value: mode_measurement_value,
-                        data: true
+                        data: dataModels[mode_measurement_value],
+                        action: 'draw-data'
                     });
                 break;
                 case KEY_LEFT:
@@ -214,7 +240,8 @@ const eventLoop = (key) => {
                             show: true,
                             screen: 'MEASUREMENT_TABLE', 
                             value: mode_measurement_value,
-                            data: true
+                            data: dataModels[mode_measurement_value],
+                            action: 'draw-data'
                         });
                         mode = MODE_MEASUREMENT_TABLE;
                     } else {
@@ -222,7 +249,8 @@ const eventLoop = (key) => {
                             show: true,
                             screen: 'MEASUREMENT_GRAPHIC', 
                             value: mode_measurement_value,
-                            data: true
+                            data: dataModels[mode_measurement_value],
+                            action: 'draw-data'
                         });
                         mode = MODE_MEASUREMENT_GRAPHIC;
                     }

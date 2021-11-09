@@ -13,7 +13,7 @@ const createMainWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     alwaysOnTop: true,
-    fullscreen: true,
+//    fullscreen: true,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,

@@ -1,6 +1,5 @@
 const { ipcRenderer } = require('electron');
 const { drawInit, drawData, drawPicture } = require('./drawings');
-const { dataModels } = require('../model/data_model');
 
 setTimeout(()=>{
     let dc = {};
@@ -56,9 +55,14 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                         case 'FREQUENCY_RESPONSE_MEASUREMENT':
                         case 'AMPLITUDE_RESPONSE_MEASUREMENT':
                             if(message.data){
-                                drawData(dataModels[message.value]);
-                            } else {
-                                drawPicture(dataModels[message.value]);
+                                switch (message.action) {
+                                    case 'draw-data':
+                                        drawData(message.data);
+                                    break;
+                                    case 'draw-grid':
+                                        drawPicture(message.data);
+                                    break;
+                                }
                             }
                         break;
                     }
@@ -78,7 +82,7 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                         let $table_frame = $('#measurement-table');
                         let $table_body = $table_frame.find('table>body');
                         if (message.show == true) $table_frame.show();
-                        renderTable(dataModels[message.value]);
+                        renderTable(message.data);
                     break;
                 }
             break;
@@ -96,6 +100,11 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                     if (message.data){
                         renderSetting(message.value, message.data[message.value]);
                     }
+                }
+            break;
+            case 'MEASUREMENT_GRID':
+                if (message.show == true){
+                    $(`#${message.value}`).show();
                 }
             break;
         }
