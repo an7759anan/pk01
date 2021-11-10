@@ -23,7 +23,10 @@ setTimeout(()=>{
 
 ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
     if (message.screen == 'MODE_DIALOG'){
-        if (message.show == true) $('#mode-select').show();
+        if (message.show == true) {
+            $('#mode-select').show();
+            $('.gray-area').show();
+        }
         if (message.value) $('#mode-select select').val(message.value);
     } else {
         if (message.show != undefined) $('.screens').hide();
