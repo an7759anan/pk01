@@ -144,4 +144,3 @@ const renderTable = (data_model) => {
         </tr>
     `));
 }
-

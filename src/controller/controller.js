@@ -1,4 +1,5 @@
 const { ipcMain } = require ('electron');
+const StormDB = require ('stormdb');
 const { tca8418_configure } = require('../drivers/tca8418/tca8418_driver');
 const { settings, dataModels } = require('../model/data_model');
 
@@ -43,15 +44,30 @@ const mode_measurement_values_table = [
     'FREQUENCY_RESPONSE_MEASUREMENT',
     'AMPLITUDE_RESPONSE_MEASUREMENT'
 ];
-let mode_measurement_index = 0;
 let stop_clicks = 0;
 let sun_clicks = 0;
 let view, mode, state;
-let settings_prop = "gen-freq-val";
+
+const engine = new StormDB.localFileEngine("./db.stormdb");
+const db = new StormDB(engine);
+
+db.default({
+    variables: {
+        mode_measurement_index: 0,
+        settings_prop: "gen-freq-val"
+    }
+});
+db.save();
+
+mode_measurement_index = db.get("variables.mode_measurement_index").value();
+settings_prop = db.get("variables.settings_prop").value();
 
 const eventLoop = (key) => {
     if(key == KEY_STOP){
         if (++stop_clicks > 1){
+            db.get("variables.mode_measurement_index").set(mode_measurement_index);
+            db.get("variables.settings_prop").set(settings_prop);
+            db.save();
             view.close();
         }
     } else {
@@ -167,7 +183,25 @@ const eventLoop = (key) => {
                 view.close();
             } else {
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'ERROR_DIALOG', show: false});
-                state = STATE_INITIAL;
+                if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        screen: 'MEASUREMENT_GRID', 
+                        show: true, 
+                        value: mode_measurement_values_table[mode_measurement_index],
+                        data: {}
+                    });
+                    state = STATE_MEASUREMENT_GRID;
+                } else {
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        screen: 'MEASUREMENT_GRAPHIC', 
+                        show: true, 
+                        value: mode_measurement_values_table[mode_measurement_index],
+                        data: dataModels[mode_measurement_values_table[mode_measurement_index]],
+                        action: 'draw-grid'
+                    });
+                    state = STATE_MEASUREMENT;
+                    mode = MODE_MEASUREMENT_GRAPHIC;
+                }
             }
         break;
         case STATE_MODE_DIALOG:
@@ -325,6 +359,12 @@ const make_tests = () => {
     ]);
 }
 
+//const ioHook = require('iohook');
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
 const init = (mainWindow) => {
     view = mainWindow;
     mode = MODE_SPLASH_SCREEN;
@@ -337,7 +377,25 @@ const init = (mainWindow) => {
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'ERROR_DIALOG', show: true});
                 state = STATE_ERROR_DIALOG;
             } else {
-                state = STATE_INITIAL;
+                if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        screen: 'MEASUREMENT_GRID', 
+                        show: true, 
+                        value: mode_measurement_values_table[mode_measurement_index],
+                        data: {}
+                    });
+                    state = STATE_MEASUREMENT_GRID;
+                } else {
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        screen: 'MEASUREMENT_GRAPHIC', 
+                        show: true, 
+                        value: mode_measurement_values_table[mode_measurement_index],
+                        data: dataModels[mode_measurement_values_table[mode_measurement_index]],
+                        action: 'draw-grid'
+                    });
+                    state = STATE_MEASUREMENT;
+                    mode = MODE_MEASUREMENT_GRAPHIC;
+                }
             }
             tca8418_configure(0x0007,0x00ff, reg => {
                 eventLoop(reg);
@@ -346,6 +404,18 @@ const init = (mainWindow) => {
                 console.log(data);
             }).
             catch(data => console.log(data));
+            // console.log('...keyboard listening start...');
+            // let stdin = process.stdin;
+            // stdin.setRawMode(true);
+            // stdin.resume();
+            // stdin.setEncoding('utf8');
+            // stdin.on('data', key => {
+            //     if(key == '\u0003'){
+            //         process.exit();
+            //     }
+            //     console.log(`qqqq=>${key}<==`);
+            // });
+            
         });
     }, 3000);
 }

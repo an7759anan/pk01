@@ -14,7 +14,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Electron Main",
+            "name": "Debug Electron Main Process",
             "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-nix",
             "windows": {
               "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
@@ -22,6 +22,18 @@
             // runtimeArgs will be passed directly to your Electron application
             "runtimeArgs": ["--remote-debugging-port=9223"],
             "cwd": "${workspaceFolder}"
-          }
-    ]
+          },
+          {
+              "type": "node",
+              "request": "launch",
+              "name": "Debug Electron Main Process 2",
+              "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+              "windows": {
+                "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
+              },
+              "program": "${workspaceFolder}/src/index.js",
+              "protocol": "inspector",
+              "cwd": "${workspaceFolder}"
+            }
+      ]
 }
