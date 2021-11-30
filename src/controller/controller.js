@@ -183,25 +183,27 @@ const eventLoop = (key) => {
                 view.close();
             } else {
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'ERROR_DIALOG', show: false});
-                if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                        screen: 'MEASUREMENT_GRID', 
-                        show: true, 
-                        value: mode_measurement_values_table[mode_measurement_index],
-                        data: {}
-                    });
-                    state = STATE_MEASUREMENT_GRID;
-                } else {
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                        screen: 'MEASUREMENT_GRAPHIC', 
-                        show: true, 
-                        value: mode_measurement_values_table[mode_measurement_index],
-                        data: dataModels[mode_measurement_values_table[mode_measurement_index]],
-                        action: 'draw-grid'
-                    });
-                    state = STATE_MEASUREMENT;
-                    mode = MODE_MEASUREMENT_GRAPHIC;
-                }
+                view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index]});
+                state = STATE_MODE_DIALOG;
+                // if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+                //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                //         screen: 'MEASUREMENT_GRID', 
+                //         show: true, 
+                //         value: mode_measurement_values_table[mode_measurement_index],
+                //         data: {}
+                //     });
+                //     state = STATE_MEASUREMENT_GRID;
+                // } else {
+                //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                //         screen: 'MEASUREMENT_GRAPHIC', 
+                //         show: true, 
+                //         value: mode_measurement_values_table[mode_measurement_index],
+                //         data: dataModels[mode_measurement_values_table[mode_measurement_index]],
+                //         action: 'draw-grid'
+                //     });
+                //     state = STATE_MEASUREMENT;
+                //     mode = MODE_MEASUREMENT_GRAPHIC;
+                // }
             }
         break;
         case STATE_MODE_DIALOG:
@@ -377,25 +379,27 @@ const init = (mainWindow) => {
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'ERROR_DIALOG', show: true});
                 state = STATE_ERROR_DIALOG;
             } else {
-                if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                        screen: 'MEASUREMENT_GRID', 
-                        show: true, 
-                        value: mode_measurement_values_table[mode_measurement_index],
-                        data: {}
-                    });
-                    state = STATE_MEASUREMENT_GRID;
-                } else {
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                        screen: 'MEASUREMENT_GRAPHIC', 
-                        show: true, 
-                        value: mode_measurement_values_table[mode_measurement_index],
-                        data: dataModels[mode_measurement_values_table[mode_measurement_index]],
-                        action: 'draw-grid'
-                    });
-                    state = STATE_MEASUREMENT;
-                    mode = MODE_MEASUREMENT_GRAPHIC;
-                }
+                view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index]});
+                state = STATE_MODE_DIALOG;
+                // if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+                //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                //         screen: 'MEASUREMENT_GRID', 
+                //         show: true, 
+                //         value: mode_measurement_values_table[mode_measurement_index],
+                //         data: {}
+                //     });
+                //     state = STATE_MEASUREMENT_GRID;
+                // } else {
+                //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                //         screen: 'MEASUREMENT_GRAPHIC', 
+                //         show: true, 
+                //         value: mode_measurement_values_table[mode_measurement_index],
+                //         data: dataModels[mode_measurement_values_table[mode_measurement_index]],
+                //         action: 'draw-grid'
+                //     });
+                //     state = STATE_MEASUREMENT;
+                //     mode = MODE_MEASUREMENT_GRAPHIC;
+                // }
             }
             tca8418_configure(0x0007,0x00ff, reg => {
                 eventLoop(reg);

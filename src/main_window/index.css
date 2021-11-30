@@ -45,7 +45,8 @@
 
 #mode-select .dialog-content select{
     overflow: hidden;
-    border: none;
+    border: solid gray;
+    box-shadow: 5px 5px 5px #463e3b;
 }
 
 #splash-screen, #test-screen {
