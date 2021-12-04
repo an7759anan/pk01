@@ -26,7 +26,7 @@ exports.drawData = (dataModel) => {
         if (path_top && ctx.isPointInPath(path_top, xv(pp.x), yv(pp.y))) color = 'red'; 
         if (path_bottom && ctx.isPointInPath(path_bottom, xv(pp.x), yv(pp.y))) color = 'red';
         ctx.fillStyle = color;
-        ctx.arc(xv(pp.x),yv(pp.y),10,0,2*Math.PI);
+        ctx.arc(xv(pp.x),yv(pp.y),5,0,2*Math.PI);
         ctx.stroke();
         ctx.closePath();
         ctx.fill();

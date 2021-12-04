@@ -15,16 +15,16 @@ exports.settings = settings;
 exports.dataModels = {
     "SIGNAL_TO_NOISE_MEASUREMENT": {
         axisX: {
-            name: 'Input level',
-            units: 'dBm0',
+            name: 'Входной уровень',
+            units: 'дБм0',
             min: -60,
             max: 10,
             step: 10,
             marks: []
         },
         axisY: {
-            name: 'Signal-to-total distortion ratio',
-            units: 'dB',
+            name: 'Отношение сигнал/шум квантования',
+            units: 'дБ',
             min: 0,
             max: 40,
             step: 10,
@@ -56,15 +56,15 @@ exports.dataModels = {
     },
     "FREQUENCY_RESPONSE_MEASUREMENT": {
         axisX: {
-            name: 'Frequency (f)',
-            units: 'Hz',
+            name: 'Частота',
+            units: 'Гц',
             min: 0,
             max: 3800,
             marks: []
         },
         axisY: {
-            name: 'Loss',
-            units: 'dB',
+            name: 'Затухание',
+            units: 'дБ',
             min: -1,
             max: 2,
             marks: []
@@ -121,15 +121,15 @@ exports.dataModels = {
     },
     "AMPLITUDE_RESPONSE_MEASUREMENT": {
         axisX: {
-            name: 'Input level',
-            units: 'dBm0',
+            name: 'Входной уровень',
+            units: 'дБм0',
             min: -70,
             max: 3,
             marks: []
         },
         axisY: {
-            name: 'Gain variation',
-            units: 'dB',
+            name: 'Затухание',
+            units: 'дБ',
             min: -3.5,
             max: 3.5,
             marks: []
