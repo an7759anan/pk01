@@ -65,7 +65,16 @@
     overflow-y: scroll;
 }
 
+.bad-value {
+    background-color: lightcoral;
+}
+
 #measurement-table table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+.normatives table {
     width: 100%;
     border-spacing: 0;
 }
@@ -78,6 +87,23 @@
 }
 
 #measurement-table table td{
+    border: 1px solid black;
+    text-align: right;
+}
+
+.normatives table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+.normatives table th {
+    border: 1px solid black;
+    position: sticky;
+    top: 0;
+    background: white;    
+}
+
+.normatives table td{
     border: 1px solid black;
     text-align: right;
 }

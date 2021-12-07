@@ -7,7 +7,7 @@ setTimeout(()=>{
     dc.canvas = $('#measurement-screen canvas')[0];
     dc.ctx = dc.canvas.getContext('2d');
     dc.gridX0 = 0.1 * dc.canvas.width;
-    dc.gridY0 = 0.1 * dc.canvas.height;
+    dc.gridY0 = 0.1 * dc.canvas.height + 20;
     dc.gridWidth = 0.8 * dc.canvas.width;
     dc.gridHeight = 0.8 * dc.canvas.height;
     dc.gridX1 = dc.gridX0 + dc.gridWidth;
@@ -110,6 +110,11 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                     $(`#${message.value}`).show();
                 }
             break;
+            case 'NORMATIVE_TABLE':
+                if (message.show == true){
+                    $(`#normatives-${message.value}`).show();
+                }
+            break;
         }
     }
 });
@@ -140,7 +145,7 @@ const renderTable = (data_model) => {
     $tbody.append(data_model.data.map(d => `
         <tr>
             <td>${d.x.toLocaleString('ru',{minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-            <td>${d.y.toLocaleString('ru',{minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td ${d.isBad? 'class="bad-value"':''}>${d.y.toLocaleString('ru',{minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
         </tr>
     `));
 }

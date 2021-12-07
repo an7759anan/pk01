@@ -66,32 +66,42 @@ const drawGrid = (dataModel) => {
     signXaxis(dataModel);
     signYaxis(dataModel);
     drawAdditionalMarks(dataModel);
-    ctx.strokeRect(gridX0,gridY0,gridWidth,gridHeight);
+    ctx.strokeRect(xv(gridX0),yv(gridY1),gridWidth,gridHeight);
     ctx.strokeRect(0,0,canvas.width, canvas.height);
     ctx.restore();
 };
 
-const signXaxisMarks = (dataModel, dX) => {
+const signXmark = (x,p,angle) => {
     ctx.save();
     ctx.font = '15px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.rotate(angle);
+    let X0 = xv(x - 4);
+    let Y0 = yv(gridY0 + 15);
+    let X1 = X0*Math.cos(angle)+Y0*Math.sin(angle)-20;
+    let Y1 = Y0*Math.cos(angle)-X0*Math.sin(angle)+10;
+    ctx.fillText(''+p,X1,Y1);
+    ctx.restore();
+}
+
+const signXaxisMarks = (dataModel, dX) => {
     dataModel.axisX.marks.length = 0;
     let x = gridX0;
     if (dataModel.axisX.step){
         for(let p = dataModel.axisX.min; p <= dataModel.axisX.max; p += dataModel.axisX.step){
-            ctx.fillText(''+p,xv(x - 4),yv(gridY0 - 17));
+            signXmark(x,p,-Math.PI/2);
             dataModel.axisX.marks.push(p);
             x += dX;
         }
     }
-    ctx.restore();
 }
 
 const signXaxis = (dataModel) => {
     ctx.save();
     ctx.font = '15px sans-serif';
-    ctx.fillText(dataModel.axisX.units,xv(gridX1 + 15),yv(gridY0 - 17));
+    ctx.fillText(dataModel.axisX.units,xv(gridX1 + 17),yv(gridY0 - 17));
     ctx.textAlign = 'center';
-    ctx.fillText(dataModel.axisX.name,xv(gridX0 + gridWidth/2),yv(gridY0 - 35));
+    ctx.fillText(dataModel.axisX.name,xv(gridX0 + gridWidth/2),yv(gridY0 - 45));
     ctx.restore();
 }
 
@@ -169,8 +179,7 @@ const drawAdditionalMarks = (dataModel) => {
                 ctx.stroke();
             }
             if(!dataModel.axisX.marks.includes(p1.x)){
-                ctx.beginPath();
-                ctx.fillText(''+p1.x,xv(pp1.x + 18),yv(gridY0 - 17));
+                signXmark(pp1.x,p1.x,-Math.PI/2);
                 ctx.beginPath();
                 ctx.moveTo(xv(pp1.x), yv(gridY0));
                 ctx.lineTo(xv(pp1.x), yv(pp1.y));

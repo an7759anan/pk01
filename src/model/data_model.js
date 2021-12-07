@@ -52,7 +52,7 @@ exports.dataModels = {
                 ]
             }
         ],
-        data: [{x: -50, y: 15},{x: -40, y: 35},{x: -30, y: 15},{x: -10, y: 22},{x: 5, y: 15}]
+        data: [{x: -50, y: 15},{x: -40, y: 35},{x: -30, y: 15, isBad: true},{x: -10, y: 22, isBad: true},{x: 5, y: 15}]
     },
     "FREQUENCY_RESPONSE_MEASUREMENT": {
         axisX: {
@@ -117,7 +117,7 @@ exports.dataModels = {
                 ]
             }
         ],
-        data: [{x: 100, y: 1.8},{x: 200, y: .25},{x: 1020, y: 0},{x: 1200, y: .7},{x: 2450, y: -.7},{x: 3200, y: 1},{x: 3600, y: 1.8}]
+        data: [{x: 100, y: 1.8},{x: 200, y: .25},{x: 1020, y: 0},{x: 1200, y: .7, isBad: true},{x: 2450, y: -.7, isBad: true},{x: 3200, y: 1},{x: 3600, y: 1.8}]
     },
     "AMPLITUDE_RESPONSE_MEASUREMENT": {
         axisX: {
@@ -195,6 +195,6 @@ exports.dataModels = {
                 ]
             }
         ],
-        data: [{x: -65, y: -3},{x: -60, y: 3},{x: -55, y: .7},{x: -45, y: -.6},{x: -35, y: .6},{x:-20,y:.4},{x:-9,y:.2}]
+        data: [{x: -65, y: -3},{x: -60, y: 3},{x: -55, y: .7},{x: -45, y: -.6},{x: -35, y: .6, isBad: true},{x:-20,y:.4},{x:-9,y:.2}]
     }    
 }

@@ -36,6 +36,15 @@ const MODE_SPLASH_SCREEN        = 1;
 const MODE_TEST_INFO            = 2;
 const MODE_MEASUREMENT_GRAPHIC  = 3;
 const MODE_MEASUREMENT_TABLE    = 4;
+const MODE_MEASUREMENT_NORMATIVE = 5;
+
+const mode_transitions = [];
+mode_transitions[MODE_MEASUREMENT_GRAPHIC] = [];
+mode_transitions[MODE_MEASUREMENT_TABLE] = [];
+mode_transitions[MODE_MEASUREMENT_NORMATIVE] = [];
+mode_transitions[MODE_MEASUREMENT_GRAPHIC][KEY_LEFT] = MODE_MEASUREMENT_TABLE; mode_transitions[MODE_MEASUREMENT_GRAPHIC][KEY_RIGHT] = MODE_MEASUREMENT_NORMATIVE;
+mode_transitions[MODE_MEASUREMENT_TABLE][KEY_LEFT] = MODE_MEASUREMENT_NORMATIVE; mode_transitions[MODE_MEASUREMENT_TABLE][KEY_RIGHT] = MODE_MEASUREMENT_GRAPHIC;
+mode_transitions[MODE_MEASUREMENT_NORMATIVE][KEY_LEFT] = MODE_MEASUREMENT_GRAPHIC; mode_transitions[MODE_MEASUREMENT_NORMATIVE][KEY_RIGHT] = MODE_MEASUREMENT_TABLE;
 
 const mode_measurement_values_table = [
     'TONE_SIGNAL_MEASUREMENT',
@@ -271,24 +280,33 @@ const eventLoop = (key) => {
                 break;
                 case KEY_LEFT:
                 case KEY_RIGHT:
-                    if (mode == MODE_MEASUREMENT_GRAPHIC){
-                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                            show: true,
-                            screen: 'MEASUREMENT_TABLE', 
-                            value: mode_measurement_value,
-                            data: dataModels[mode_measurement_value],
-                            action: 'draw-data'
-                        });
-                        mode = MODE_MEASUREMENT_TABLE;
-                    } else {
-                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                            show: true,
-                            screen: 'MEASUREMENT_GRAPHIC', 
-                            value: mode_measurement_value,
-                            data: dataModels[mode_measurement_value],
-                            action: 'draw-data'
-                        });
-                        mode = MODE_MEASUREMENT_GRAPHIC;
+                    mode = mode_transitions[mode][key]; // next mode to go
+                    switch(mode){
+                        case MODE_MEASUREMENT_GRAPHIC:
+                            view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                                show: true,
+                                screen: 'MEASUREMENT_GRAPHIC', 
+                                value: mode_measurement_value,
+                                data: dataModels[mode_measurement_value],
+                                action: 'draw-data'
+                            });
+                        break;
+                        case MODE_MEASUREMENT_TABLE:
+                            view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                                show: true,
+                                screen: 'MEASUREMENT_TABLE', 
+                                value: mode_measurement_value,
+                                data: dataModels[mode_measurement_value],
+                                action: 'draw-data'
+                            });
+                        break;
+                        case MODE_MEASUREMENT_NORMATIVE:
+                            view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                                show: true,
+                                screen: 'NORMATIVE_TABLE', 
+                                value: mode_measurement_value,
+                            });
+                        break;
                     }
                 break;
             }

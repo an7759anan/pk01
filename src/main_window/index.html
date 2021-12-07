@@ -38,9 +38,11 @@
       </div>
     </div>
     <div class="screens" id="measurement-screen" style="display: none;">
+      <span style="text-decoration: underline">Маска</span><span> / </span><span>Таблица</span><span> / </span><span>Данные</span>
       <canvas width="800" height="480"></canvas>
     </div>
     <div class="screens" id="measurement-table" style="display: none;">
+      <span>Маска</span><span> / </span><span>Таблица</span><span> / </span><span style="text-decoration: underline">Данные</span>
       <table>
         <thead>
           <tr>
@@ -53,6 +55,49 @@
             <td></td>
             <td></td>
           </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="screens normatives" id="normatives-SIGNAL_TO_NOISE_MEASUREMENT" style="display: none;">
+      <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> / </span><span>Данные</span>
+      <table>
+        <thead>
+          <tr><th>Уровень входного сигнала, дБм0</th><th>Отношение С/Ш квантования, дБ</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>от 0 до минус 30</td><td>Не менее 33</td></tr>
+          <tr><td>минус 40</td><td>Не менее 27</td></tr>
+          <tr><td>минус 45</td><td>Не менее 22</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="screens normatives" id="normatives-FREQUENCY_RESPONSE_MEASUREMENT" style="display: none;">
+      <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> / </span><span>Данные</span>
+      <table>
+        <thead>
+          <tr><th>Частота (f), Гц</th><th>Затухание, дБ</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>от 200 до 300</td><td>-0,5/+ не нормируется</td></tr>
+          <tr><td>от 300 до 2 400</td><td>&plusmn;0,5</td></tr>
+          <tr><td>от 2 400 до 3 000</td><td>-0,5/0,9</td></tr>
+          <tr><td>от 3 000 до 3 400</td><td>-0,5/1,8</td></tr>
+          <tr><td>от 3 400 до 3 600</td><td>-0,5/+ не нормируется</td></tr>
+          <tr><td>от 3 600 до 3 800</td><td>0/+ не нормируется</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="screens normatives" id="normatives-AMPLITUDE_RESPONSE_MEASUREMENT" style="display: none;">
+      <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> / </span><span>Данные</span>
+      <table>
+        <thead>
+          <tr><th>Уровень входного сигнала, дБм0</th><th>Затухание, дБ</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>от 3 до 0</td><td>&plusmn;1,0</td></tr>
+          <tr><td>от 0 до минус 40</td><td>&plusmn;0,5</td></tr>
+          <tr><td>от минус 40 до минус 50</td><td>&plusmn;1,0</td></tr>
+          <tr><td>от минус 50 до минус 55</td><td>&plusmn;3,0</td></tr>
         </tbody>
       </table>
     </div>
