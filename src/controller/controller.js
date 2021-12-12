@@ -1,7 +1,7 @@
 const { ipcMain } = require ('electron');
 const StormDB = require ('stormdb');
 const { tca8418_configure } = require('../drivers/tca8418/tca8418_driver');
-const { settings, dataModels } = require('../model/data_model');
+let { settings, dataModels } = require('../model/data_model');
 
 const KEY_START = 129;
 const KEY_GEN   = 130;
@@ -64,18 +64,21 @@ db.default({
     variables: {
         mode_measurement_index: 0,
         settings_prop: "gen-freq-val"
-    }
+    },
+    model_settings: settings
 });
 db.save();
 
 mode_measurement_index = db.get("variables.mode_measurement_index").value();
 settings_prop = db.get("variables.settings_prop").value();
+settings = db.get("model_settings").value();
 
 const eventLoop = (key) => {
     if(key == KEY_STOP){
         if (++stop_clicks > 1){
             db.get("variables.mode_measurement_index").set(mode_measurement_index);
             db.get("variables.settings_prop").set(settings_prop);
+            db.get("model_settings").set(settings);
             db.save();
             view.close();
         }
@@ -191,6 +194,7 @@ const eventLoop = (key) => {
             if(key == KEY_0){
                 view.close();
             } else {
+                initSettings();
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'ERROR_DIALOG', show: false});
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index]});
                 state = STATE_MODE_DIALOG;
@@ -385,6 +389,15 @@ const readline = require('readline').createInterface({
     output: process.stdout
 });
 
+// initial set settings...
+const initSettings = () => {
+    for (let _setting_prop in settings){
+        if (settings.hasOwnProperty(_setting_prop)){
+            view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'SETTINGS_GRID', value: _setting_prop, edit: false, data: settings});
+        }
+    }
+}
+
 const init = (mainWindow) => {
     view = mainWindow;
     mode = MODE_SPLASH_SCREEN;
@@ -397,6 +410,7 @@ const init = (mainWindow) => {
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'ERROR_DIALOG', show: true});
                 state = STATE_ERROR_DIALOG;
             } else {
+                initSettings();
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index]});
                 state = STATE_MODE_DIALOG;
                 // if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
