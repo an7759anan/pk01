@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const controller = require ('./controller/controller');
+const webserver = require('./webserver/webserver');
 
 const path = require('path');
 let mainWindow;
@@ -13,7 +14,7 @@ const createMainWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     alwaysOnTop: true,
-    fullscreen: true,
+//    fullscreen: true,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
@@ -50,3 +51,5 @@ app.on('activate', () => {
     controller.init();
   }
 });
+
+webserver.init();
