@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const controller = require ('./controller/controller');
+const webserver = require('./webserver/webserver');
 
 const path = require('path');
 let mainWindow;
@@ -50,3 +51,5 @@ app.on('activate', () => {
     controller.init();
   }
 });
+
+webserver.init();

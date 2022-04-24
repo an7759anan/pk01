@@ -7,7 +7,7 @@ var settings = {
     "mes-zero-val": {val: 4, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 10, next: {up: "mes-tran-val", down: "mes-voice1-val", left: "gen-zero-val"}}, // + 4
     "mes-voice1-val": {val: 0, unit: "", type: "enum", values: [{val: 0, name: "Закрытый"}, {val: 1, name: "Открытый"}], next: {up: "mes-zero-val", down: "mes-voice2-val"}},
     "mes-voice2-val": {val: 0, unit: "&ohm;", type: "enum", values: [{val: 0, name: "600"}, {val: 1, name: "> 30"}], next: {up: "mes-voice1-val", down: "mes-psf-val"}}, // &ohm;
-    "mes-psf-val": {val: 0, unit: "", type: "enum", values: [{val: 0, name: "Выключен"}, {val: 1, name: "Выключен"}], next: {up: "mes-voice2-val", down: "mes-freq-val"}}
+    "mes-psf-val": {val: 0, unit: "", type: "enum", values: [{val: 0, name: "Выключен"}, {val: 1, name: "Включен"}], next: {up: "mes-voice2-val", down: "mes-freq-val"}}
 };
 
 exports.settings = settings;
