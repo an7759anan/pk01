@@ -387,14 +387,16 @@ const make_tests = () => {
 const load_dsp = () => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            dsp.init();
-            view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                screen: 'DSP_LOADING',
-                dsp_loading_result: 'ok!'
-            });
-            setTimeout(() => {
-                resolve(true);
-            }, 3000);
+            dsp.dsp_init()
+                .then(result => {
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        screen: 'DSP_LOADING',
+                        dsp_loading_result: result
+                    });
+                    setTimeout(() => {
+                        resolve(true);
+                    }, 3000);
+                });
         }, 3000);
     });
 }

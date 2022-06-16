@@ -1,23 +1,31 @@
-const { init } = require('raspi');
-const { Serial } = require('raspi-serial').Serial;
+const { SerialPort } = require('serialport');
+const fs = require('fs');
 
-let serial;
+let serialport;
 
 const dsp_init = () => {
-    serial = new Serial();
-    serial.open(() => {
-        serial.on('data', data => {
-            process.stdout.write(data);
+    return new Promise((resolve, reject) => {
+        serialport = new SerialPort({ path: '/dev/ttyAMA0', baudRate: 115200, dataBits: 8, stopBits: 1, parity: 'none' });
+        //        serialport.write('Hello!');
+       const rs = fs.createReadStream("./dsp.img");
+// const rs = fs.createReadStream("./Morning-Pictures.jpg");
+// const ws = fs.createWriteStream("./Morning-Pictures1.jpg");
+rs.on('error', (error) => {
+            resolve(`error: ${error.message}`);
         });
-        serial.write('Hello!');
+        rs.on('data', (chunk) => {
+            serialport.write(chunk);
+        });
+        // rs.on('data', (chunk) => {
+        //     ws.write(chunk);
+        // });
+        rs.on('end', () => {
+            // ws.close();
+            resolve('ok!!!');
+        });
     });
-}
-
-const dsp_load_image = () => {
-
 }
 
 module.exports = {
     "dsp_init": dsp_init,
-    "dsp_load_image": dsp_load_image
 }
