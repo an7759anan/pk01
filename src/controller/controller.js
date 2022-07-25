@@ -1,5 +1,5 @@
 
-const tca8418_configure = null;
+let tca8418_configure = null;
 const os = require('os');
 if (os.arch() == 'arm64' ){
     tca8418_configure = require('../drivers/tca8418/tca8418_driver').tca8418_configure;
