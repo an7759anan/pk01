@@ -2,7 +2,7 @@ const { ipcMain } = require('electron');
 const StormDB = require('stormdb');
 const { tca8418_configure } = require('../drivers/tca8418/tca8418_driver');
 let { settings, dataModels } = require('../model/data_model');
-const dsp = require('./dsp')
+const dsp = require('../drivers/dsp');
 
 const KEY_START = 129;
 const KEY_GEN = 130;
