@@ -52,7 +52,6 @@
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",
     "onoff": "^6.0.3",
-    "pigpio": "^3.3.1",
     "serialport": "^10.4.0",
     "slip": "^1.0.2",
     "stormdb": "^0.5.2"

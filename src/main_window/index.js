@@ -34,6 +34,10 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
             case 'SPLASH_SCREEN':
                 if (message.show == true) $('#splash-screen').show();
             break;
+            case 'DSP_LOADING':
+                if (message.show == true) $('#dsp-loading-screen').show();
+                if (message.dsp_loading_result) $('#dsp-loading-section').text($('#dsp-loading-section').text() + message.dsp_loading_result);
+            break;
             case 'TEST_INFO':
                 if (message.show == true) $('#test-screen').show();
                 if (message.opk_soft_version) $('#opk_soft_version').text($('#opk_soft_version').text() + message.opk_soft_version);
