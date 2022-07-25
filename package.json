@@ -1,8 +1,8 @@
 {
-  "name": "tsp21",
-  "productName": "tsp21",
+  "name": "dsp-tester",
+  "productName": "pk01",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "test app for dsp",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -50,8 +50,11 @@
     "express": "^4.17.3",
     "i2c-bus": "^5.2.2",
     "jquery": "^3.6.0",
+    "lodash": "^4.17.21",
     "onoff": "^6.0.3",
     "pigpio": "^3.3.1",
+    "serialport": "^10.4.0",
+    "slip": "^1.0.2",
     "stormdb": "^0.5.2"
   },
   "devDependencies": {

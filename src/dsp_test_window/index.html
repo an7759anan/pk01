@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>DSP Test Window</title>
+    <link rel="stylesheet" href="index.css">
+    <script>window.$ = window.jQuery = require('jquery')</script>
+  </head>
+<body>
+  <div id="common-container">
+    <div class="screens dialog-frame" id="mode-select">
+      <div class="dialog-content">
+        <select size="5" multiple autofocus>
+          <option value="TONE_SIGNAL_MEASUREMENT">ИЗМЕРЕНИЕ СИГНАЛА ТЧ ВРУЧНУЮ</option>
+          <option value="SIGNAL_TO_NOISE_MEASUREMENT">ИЗМЕРЕНИЕ ОТНОШЕНИЯ СИГНАЛ/ШУМ</option>
+          <option value="FREE_CHANNEL_NOISE_MEASUREMENT">ИЗМЕРЕНИЕ ШУМА СВОБОДНОГО КАНАЛА</option>
+          <option value="FREQUENCY_RESPONSE_MEASUREMENT">ИЗМЕРЕНИЕ ЧАСТОТНОЙ ХАРАКТЕРИСТИКИ</option>
+          <option value="AMPLITUDE_RESPONSE_MEASUREMENT">ИЗМЕРЕНИЕ АМПЛИТУДНОЙ ХАРАКТЕРИСТИКИ</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

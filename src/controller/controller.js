@@ -1,6 +1,15 @@
+const tca8418_configure = null;
+const os = require('os');
+if (os.arch() == 'arm64' ){
+    tca8418_configure = require('../drivers/tca8418/tca8418_driver').tca8418_configure;
+}
+//  i2c = require('i2c-bus')
+// else
+//   console.warn "Not using I2C", os.arch()
+//   i2c = require('./i2c.mock.js')
+
 const { ipcMain } = require ('electron');
 const StormDB = require ('stormdb');
-const { tca8418_configure } = require('../drivers/tca8418/tca8418_driver');
 let { settings, dataModels } = require('../model/data_model');
 
 const KEY_START = 129;
@@ -433,13 +442,15 @@ const init = (mainWindow) => {
                 //     mode = MODE_MEASUREMENT_GRAPHIC;
                 // }
             }
-            tca8418_configure(0x0007,0x00ff, reg => {
-                eventLoop(reg);
-            }).
-            then(data => {
-                console.log(data);
-            }).
-            catch(data => console.log(data));
+            if (tca8418_configure){
+                tca8418_configure(0x0007,0x00ff, reg => {
+                    eventLoop(reg);
+                }).
+                then(data => {
+                    console.log(data);
+                }).
+                catch(data => console.log(data));
+                }
             // console.log('...keyboard listening start...');
             // let stdin = process.stdin;
             // stdin.setRawMode(true);

@@ -1,3 +1,4 @@
+const os = require('os');
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const controller = require ('./controller/controller');
 const webserver = require('./webserver/webserver');
@@ -25,13 +26,31 @@ const createMainWindow = () => {
   mainWindow.loadFile(path.join(__dirname, '/main_window/index.html'));
 };
 
+const createDspTestWindow = () => {
+  let dspTestWindow = new BrowserWindow({
+//    alwaysOnTop: true,
+//    fullscreen: true,
+    titleBarStyle: 'hidden',
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      preload: path.join(__dirname, '/dsp_test_window/index.js'),
+    }
+  });
+  dspTestWindow.loadFile(path.join(__dirname, '/dsp_test_window/index.html'));
+};
+
 app.allowRendererProcessReuse=false;
 
 app.on('ready', () => {
-  createMainWindow();
-  mainWindow.once('ready-to-show', () => {
-    controller.init(mainWindow);
-  })
+  if (os.arch() == 'arm64'){
+    createMainWindow();
+      mainWindow.once('ready-to-show', () => {
+        controller.init(mainWindow);
+      })
+  } else {
+    createDspTestWindow();
+  }
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -44,11 +63,13 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
-    createMainWindow();
-    controller.init();
+    if (os.arch() == 'arm64'){
+      createMainWindow();
+        controller.init();
+    } else {
+      createDspTestWindow();
+    }
   }
 });
 
