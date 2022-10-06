@@ -1,7 +1,7 @@
 {
   "name": "dsp-tester",
   "productName": "pk01",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "test app for dsp",
   "main": "src/index.js",
   "scripts": {
@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "body-parser": "^1.20.0",
+    "crc": "^4.1.1",
     "electron-squirrel-startup": "^1.0.0",
     "express": "^4.17.3",
     "i2c-bus": "^5.2.2",

@@ -1,0 +1,18 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid grey
+    
+}
+
+th {
+    border: 1px solid grey
+}
+
+td {
+    border: 1px solid grey
+}
+
+tbody td:not([contenteditable]) {
+    background:lightgrey
+}

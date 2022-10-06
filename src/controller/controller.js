@@ -1,6 +1,8 @@
 
 let tca8418_configure = null;
 const os = require('os');
+const fs = require('fs');
+
 if (os.arch() == 'arm64' ){
     tca8418_configure = require('../drivers/tca8418/tca8418_driver').tca8418_configure;
 }
@@ -9,11 +11,12 @@ if (os.arch() == 'arm64' ){
 //   console.warn "Not using I2C", os.arch()
 //   i2c = require('./i2c.mock.js')
 
-const { ipcMain } = require('electron');
+const { ipcMain, dialog } = require('electron');
 const StormDB = require('stormdb');
 
 let { settings, dataModels } = require('../model/data_model');
 const dsp = require('../drivers/dsp');
+const { SerialPort } = require('serialport');
 
 const KEY_START = 129;
 const KEY_GEN = 130;
@@ -28,6 +31,7 @@ const KEY_UP = 141;
 const KEY_5 = 143;
 const KEY_6 = 144;
 const KEY_7 = 145;
+const KEY_8 = 146;
 const KEY_HOLD = 149;
 const KEY_LEFT = 150;
 const KEY_DOWN = 151;
@@ -67,10 +71,12 @@ const mode_measurement_values_table = [
 ];
 let stop_clicks = 0;
 let sun_clicks = 0;
-let view, mode, state;
+let view, mode, state, viewTest;
 
 const engine = new StormDB.localFileEngine("./db.stormdb");
 const db = new StormDB(engine);
+
+let serialPort;
 
 db.default({
     variables: {
@@ -492,7 +498,106 @@ const init = (mainWindow) => {
     }, 3000);
 }
 
+ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
+    switch (args.command){
+        case 'SERIAL_PORT_LIST':
+            let portList = await SerialPort.list();
+            return portList;
+            break;
+        case 'SERIAL_PORT_OPEN':
+            return new Promise((resolve, reject) => {
+                if (serialPort && serialPort.isOpen){
+                    serialPort.close(error => {
+                        serialPort = null;
+                        serialPort = new SerialPort({ path: args.path, baudRate: 115200 });
+                    });
+                } else {
+                    serialPort = new SerialPort({ path: args.path, baudRate: 115200 });
+                }
+                serialPort.on('open', () => {
+                    dsp.setPort(serialPort);
+                    resolve(true);
+                });
+            });
+            break;
+        case 'SEND_COMMAND_TO_DSP':
+            return new Promise((resolve, reject) => {
+                resolve(dsp.sendCommand(args.cmd));
+            });
+            break;
+        case 'LOAD_DSP_SOFT':
+            return new Promise((resolve, reject) => {
+                dialog.showOpenDialog(view, 
+                    { properties: ['openFile', 'multiSelections'], 
+                    filters: [{ name: 'Бинарные файлы', extensions: ['bin'] }, { name: 'Все файлы', extensions: ['*'] }] 
+                }).then(result => {
+                    if (result.filePaths.length){
+                        const rs = fs.createReadStream(result.filePaths[0], { highWaterMark: 16});
+                        rs.on('error', (error) => {
+                            resolve(`error: ${error.message}`);
+                        });
+                        rs.on('data', (chunk) => {
+                            console.log(`chunk: ${chunk.length}`);
+                            serialPort.write(chunk);
+                        });
+                        rs.on('end', () => {
+                            // ws.close();
+                            resolve('ok!!!');
+                        });
+                        serialPort.on('data', (chunk) => {
+                            console.log(chunk);
+                        });
+                    } else {
+                        resolve('Файл не выбран');
+                    }
+                }).catch(err => {
+                    console.log(err);
+                    reject('Файл не выбран');
+                });
+            });
+            break;
+        case 'EVENT_LOOP':
+            eventLoop(args.key);
+            break;
+        default:
+            break;
+    }
+    return args;
+});
+
+const initTest = (dspTestWindow) => {
+//    viewTest = dspTestWindow;
+    view = dspTestWindow;
+    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'DSP_TEST_SCREEN', show: true });
+
+//    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+    // state = STATE_MODE_DIALOG;
+    setTimeout(() => {
+        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+            screen: 'MEASUREMENT_GRAPHIC',
+            show: true,
+            value: mode_measurement_values_table[1],
+            data: dataModels[mode_measurement_values_table[1]],
+            action: 'draw-grid'
+        });
+    }, 3000);
+    state = STATE_MEASUREMENT;
+    mode = MODE_MEASUREMENT_GRAPHIC;
+
+    
+// События от dsp драйвера
+    dsp.dspEmitter.on('dsp-response', args => {
+        viewTest.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { 
+            show: true,
+            screen: 'DSP_TEST_SCREEN',
+            value: 'DATA_FROM_SERIALPORT',
+            data: args.dataFromSerialPort,
+        });
+    });
+}
+
 module.exports = {
-    "init": init
+    "init": init,
+    "initTest": initTest,
 }
 
