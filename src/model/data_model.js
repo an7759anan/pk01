@@ -1,18 +1,76 @@
 var settings = {
     "gen-freq-val": {val: 1020, unit: "Гц", type: "integer", range: {min: 200, max: 3500}, step: 10, next: {up: "gen-zero-val", down: "gen-tran-val", right: "mes-freq-val"}},
     "mes-freq-val": {val: 840, unit: "Гц", type: "integer", range: {min: 200, max: 3500}, step: 10, next: {up: "mes-psf-val", down: "mes-tran-val", left: "gen-freq-val"}},
-    "gen-tran-val": {val: 0, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 10, next: {up: "gen-freq-val", down: "gen-zero-val", right: "mes-tran-val"}}, // &pm; 00
-    "mes-tran-val": {val: 0, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 10, next: {up: "mes-freq-val", down: "mes-zero-val", left: "gen-tran-val"}}, // &pm; xx,x
-    "gen-zero-val": {val: -13, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 10, next: {up: "gen-tran-val", down: "gen-freq-val", right: "mes-zero-val"}},
-    "mes-zero-val": {val: 4, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 10, next: {up: "mes-tran-val", down: "mes-voice1-val", left: "gen-zero-val"}}, // + 4
+    "gen-tran-val": {val: 0, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "gen-freq-val", down: "gen-zero-val", right: "mes-tran-val"}}, // &pm; 00
+    "mes-tran-val": {val: 0, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "mes-freq-val", down: "mes-zero-val", left: "gen-tran-val"}}, // &pm; xx,x
+    "gen-zero-val": {val: -13, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "gen-tran-val", down: "gen-freq-val", right: "mes-zero-val"}},
+    "mes-zero-val": {val: 4, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "mes-tran-val", down: "mes-voice1-val", left: "gen-zero-val"}}, // + 4
     "mes-voice1-val": {val: 0, unit: "", type: "enum", values: [{val: 0, name: "Закрытый"}, {val: 1, name: "Открытый"}], next: {up: "mes-zero-val", down: "mes-voice2-val"}},
     "mes-voice2-val": {val: 0, unit: "&ohm;", type: "enum", values: [{val: 0, name: "600"}, {val: 1, name: "> 30"}], next: {up: "mes-voice1-val", down: "mes-psf-val"}}, // &ohm;
     "mes-psf-val": {val: 0, unit: "", type: "enum", values: [{val: 0, name: "Выключен"}, {val: 1, name: "Включен"}], next: {up: "mes-voice2-val", down: "mes-freq-val"}}
 };
 
-exports.settings = settings;
+const clearData = (script) => {
+    dataModels[script].data.length = 0;
+}
 
-exports.dataModels = {
+const addDataFromDsp = (script, data) => {
+    let dataModel = dataModels[script];
+    if (!dataModel) return false;
+    let dataModelData = dataModel.data;
+    let x, y; //{x: -30, y: 15, isBad: true};
+    /**
+     * - учесть settings
+     * - определиться с хорошой/плохой
+     * - потом вообще сделать через Observable 
+     * - ...
+     */
+    switch(script){
+        case 'TONE_SIGNAL_MEASUREMENT':
+            break;
+        case 'SIGNAL_TO_NOISE_MEASUREMENT':
+            break;
+        case 'FREE_CHANNEL_NOISE_MEASUREMENT':
+            break;
+        case 'FREQUENCY_RESPONSE_MEASUREMENT':
+            x = data["p3.1"];
+            y = settings["gen-tran-val"].val - data.p4/10;
+            console.log(`gen-tran-val=${settings["gen-tran-val"].val}; data.p4=${data.p4}; x=${x}; y=${y}`);
+            break;
+        case 'AMPLITUDE_RESPONSE_MEASUREMENT':
+            break;
+    }
+    if (x != undefined) {
+        /*
+        * отфильтровать только одно значение из ряда для одних и тех же значений x
+        */
+        let buffer = dataModel.buffer ?? [];
+        if (buffer.length){
+            if(buffer[buffer.length - 1].x !== x ){
+                dataModelData.push(buffer[Math.floor(buffer.length / 2)]);
+                buffer.length = 0;
+                buffer.push({ "x": x, "y": y });            
+                dataModel.buffer = buffer;
+                return true;
+            } else if (buffer.length == 4) {
+                buffer.push({ "x": x, "y": y });            
+                dataModel.buffer = buffer;
+                dataModelData.push(buffer[Math.floor(buffer.length / 2)]);
+                return true;
+            } else if (buffer.length < 4){
+                buffer.push({ "x": x, "y": y });            
+                dataModel.buffer = buffer;
+                return true;
+            }
+            return false;
+        } 
+        buffer.push({ "x": x, "y": y });            
+        dataModel.buffer = buffer;
+        return true;
+    }
+}
+
+var dataModels = {
     "SIGNAL_TO_NOISE_MEASUREMENT": {
         axisX: {
             name: 'Входной уровень',
@@ -197,4 +255,11 @@ exports.dataModels = {
         ],
         data: [{x: -65, y: -3},{x: -60, y: 3},{x: -55, y: .7},{x: -45, y: -.6},{x: -35, y: .6, isBad: true},{x:-20,y:.4},{x:-9,y:.2}]
     }    
+}
+
+module.exports = {
+    "settings": settings,
+    "clearData": clearData,
+    "addDataFromDsp": addDataFromDsp,
+    "dataModels": dataModels
 }

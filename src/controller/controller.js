@@ -14,7 +14,7 @@ if (os.arch() == 'arm64' ){
 const { ipcMain, dialog } = require('electron');
 const StormDB = require('stormdb');
 
-let { settings, dataModels } = require('../model/data_model');
+const dm = require('../model/data_model');
 const dsp = require('../drivers/dsp');
 const { SerialPort } = require('serialport');
 
@@ -83,23 +83,24 @@ db.default({
         mode_measurement_index: 0,
         settings_prop: "gen-freq-val"
     },
-    model_settings: settings
+    model_settings: dm.settings
 });
 db.save();
 
 mode_measurement_index = db.get("variables.mode_measurement_index").value();
 settings_prop = db.get("variables.settings_prop").value();
-settings = db.get("model_settings").value();
+Object.assign(dm.settings, db.get("model_settings").value());
 
 const eventLoop = (key) => {
     if (key == KEY_STOP) {
         if (++stop_clicks > 1) {
             db.get("variables.mode_measurement_index").set(mode_measurement_index);
             db.get("variables.settings_prop").set(settings_prop);
-            db.get("model_settings").set(settings);
+            db.get("model_settings").set(dm.settings);
             db.save();
             view.close();
-        }
+        } 
+        dsp.sendStopCommand();
     } else {
         stop_clicks = 0;
     }
@@ -124,7 +125,7 @@ const eventLoop = (key) => {
                     break;
                 case KEY_SUN:
                     settings_prop = "gen-freq-val";
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', show: true, value: settings_prop, data: settings });
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', show: true, value: settings_prop, data: dm.settings });
                     state = STATE_SETTINGS;
                     break;
             }
@@ -149,26 +150,26 @@ const eventLoop = (key) => {
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop });
                     break;
                 case KEY_UP:
-                    if (settings[settings_prop].next.up) {
-                        settings_prop = settings[settings_prop].next.up;
+                    if (dm.settings[settings_prop].next.up) {
+                        settings_prop = dm.settings[settings_prop].next.up;
                         view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop });
                     }
                     break;
                 case KEY_DOWN:
-                    if (settings[settings_prop].next.down) {
-                        settings_prop = settings[settings_prop].next.down;
+                    if (dm.settings[settings_prop].next.down) {
+                        settings_prop = dm.settings[settings_prop].next.down;
                         view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop });
                     }
                     break;
                 case KEY_LEFT:
-                    if (settings[settings_prop].next.left) {
-                        settings_prop = settings[settings_prop].next.left;
+                    if (dm.settings[settings_prop].next.left) {
+                        settings_prop = dm.settings[settings_prop].next.left;
                         view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop });
                     }
                     break;
                 case KEY_RIGHT:
-                    if (settings[settings_prop].next.right) {
-                        settings_prop = settings[settings_prop].next.right;
+                    if (dm.settings[settings_prop].next.right) {
+                        settings_prop = dm.settings[settings_prop].next.right;
                         view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop });
                     }
                     break;
@@ -181,7 +182,7 @@ const eventLoop = (key) => {
                     state = STATE_SETTINGS;
                     break;
                 case KEY_UP:
-                    let prop = settings[settings_prop];
+                    let prop = dm.settings[settings_prop];
                     switch (prop.type) {
                         case "integer":
                         case "float":
@@ -191,10 +192,10 @@ const eventLoop = (key) => {
                             prop.val = Math.min(prop.values.length - 1, prop.val + 1);
                             break;
                     }
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: settings });
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: dm.settings });
                     break;
                 case KEY_DOWN:
-                    let prop2 = settings[settings_prop];
+                    let prop2 = dm.settings[settings_prop];
                     switch (prop2.type) {
                         case "integer":
                         case "float":
@@ -204,7 +205,7 @@ const eventLoop = (key) => {
                             prop2.val = Math.max(0, prop2.val - 1);
                             break;
                     }
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: settings });
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: dm.settings });
                     break;
             }
             break;
@@ -254,7 +255,7 @@ const eventLoop = (key) => {
                             screen: 'MEASUREMENT_GRAPHIC',
                             show: true,
                             value: mode_measurement_values_table[mode_measurement_index],
-                            data: dataModels[mode_measurement_values_table[mode_measurement_index]],
+                            data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
                             action: 'draw-grid'
                         });
                         state = STATE_MEASUREMENT;
@@ -288,17 +289,61 @@ const eventLoop = (key) => {
                     state = STATE_SETTINGS;
                     break;
                 case KEY_MEASURE:
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_value });
                     state = STATE_MODE_DIALOG;
                     break;
                 case KEY_START:
+                /**
+                 * TODO
+                 * - обнулить данные в модели
+                 * - вместо 'draw-data' послать 'draw-grid'
+                 * - послать команду с выбранным сценарием в DSP
+                 */
+                    dm.clearData(mode_measurement_value);
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                        show: true,
                         screen: 'MEASUREMENT_GRAPHIC',
+                        show: true,
                         value: mode_measurement_value,
-                        data: dataModels[mode_measurement_value],
-                        action: 'draw-data'
+                        data: dm.dataModels[mode_measurement_value], 
+                        action: 'draw-grid'
                     });
+                    let p30 = mode_measurement_index + 1;
+                    let cmd = { "kf": 0x41, "p30": p30 };
+                    switch (p30){
+                        case 1:
+                            cmd["p2"] = dm.settings["gen-tran-val"].val;
+                            cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+                            cmd["p6"] = dm.settings["mes-voice1-val"].val;
+                            cmd["p7"] = dm.settings["mes-voice2-val"].val;
+                            break;
+                        case 2:
+                            cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+                            cmd["p11"] = 5;
+                            break;
+                        case 4:
+                            cmd["p2"] = dm.settings["gen-tran-val"].val;
+                            cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+                            cmd["p3.2"] = 3600;
+                            cmd["p12"] = 100;
+                            break;
+                        case 5:
+                            cmd["p2"] = dm.settings["gen-tran-val"].val;
+                            cmd["p11"] = 5;
+                            break;
+                        default:
+                            break;
+                    }
+                    cmd["TEST"] = 1;
+                    cmd["PSOF"] = dm.settings["mes-psf-val"].val;
+                    cmd["DB10"] = 0;
+                    dsp.sendCommand(cmd);
+                    // view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    //     show: true,
+                    //     screen: 'MEASUREMENT_GRAPHIC',
+                    //     value: mode_measurement_value,
+                    //     data: dm.dataModels[mode_measurement_value], 
+                    //     action: 'draw-data'
+                    // });
                     break;
                 case KEY_LEFT:
                 case KEY_RIGHT:
@@ -309,7 +354,7 @@ const eventLoop = (key) => {
                                 show: true,
                                 screen: 'MEASUREMENT_GRAPHIC',
                                 value: mode_measurement_value,
-                                data: dataModels[mode_measurement_value],
+                                data: dm.dataModels[mode_measurement_value],
                                 action: 'draw-data'
                             });
                             break;
@@ -318,7 +363,7 @@ const eventLoop = (key) => {
                                 show: true,
                                 screen: 'MEASUREMENT_TABLE',
                                 value: mode_measurement_value,
-                                data: dataModels[mode_measurement_value],
+                                data: dm.dataModels[mode_measurement_value],
                                 action: 'draw-data'
                             });
                             break;
@@ -404,7 +449,7 @@ const make_tests = () => {
 const load_dsp = () => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            dsp.dsp_init()
+            dsp.dsp_init(dm)
                 .then(result => {
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         screen: 'DSP_LOADING',
@@ -426,9 +471,9 @@ const readline = require('readline').createInterface({
 
 // initial set settings...
 const initSettings = () => {
-    for (let _setting_prop in settings) {
-        if (settings.hasOwnProperty(_setting_prop)) {
-            view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: _setting_prop, edit: false, data: settings });
+    for (let _setting_prop in dm.settings) {
+        if (dm.settings.hasOwnProperty(_setting_prop)) {
+            view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: _setting_prop, edit: false, data: dm.settings });
         }
     }
 }
@@ -464,7 +509,7 @@ const init = (mainWindow) => {
                         //         screen: 'MEASUREMENT_GRAPHIC', 
                         //         show: true, 
                         //         value: mode_measurement_values_table[mode_measurement_index],
-                        //         data: dataModels[mode_measurement_values_table[mode_measurement_index]],
+                        //         data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
                         //         action: 'draw-grid'
                         //     });
                         //     state = STATE_MEASUREMENT;
@@ -521,7 +566,32 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
             });
             break;
         case 'SEND_COMMAND_TO_DSP':
+            let mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
+            dm.clearData(mode_measurement_value);
+            view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                screen: 'MEASUREMENT_GRAPHIC',
+                show: true,
+                value: mode_measurement_value,
+                data: dm.dataModels[mode_measurement_value], 
+                action: 'draw-grid'
+            });
             return new Promise((resolve, reject) => {
+                resolve(dsp.sendCommand(args.cmd));
+            });
+            break;
+        case 'SEND_COMMAND_FROM_DSP':
+            /**
+             * а сейчас надо перенаправить в DSP (упаковать в SLIP)
+             */
+            return new Promise((resolve, reject) => {
+                dm.addDataFromDsp(mode_measurement_values_table[mode_measurement_index], args.cmd);
+                view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    show: true,
+                    screen: 'MEASUREMENT_GRAPHIC',
+                    value: mode_measurement_values_table[mode_measurement_index],
+                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]], 
+                    action: 'draw-data'
+                });
                 resolve(dsp.sendCommand(args.cmd));
             });
             break;
@@ -544,9 +614,9 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
                             // ws.close();
                             resolve('ok!!!');
                         });
-                        serialPort.on('data', (chunk) => {
-                            console.log(chunk);
-                        });
+                        // serialPort.on('data', (chunk) => {
+                        //     console.log(chunk);
+                        // });
                     } else {
                         resolve('Файл не выбран');
                     }
@@ -569,30 +639,54 @@ const initTest = (dspTestWindow) => {
 //    viewTest = dspTestWindow;
     view = dspTestWindow;
     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'DSP_TEST_SCREEN', show: true });
+    initSettings();
+    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+    state = STATE_MODE_DIALOG;
+
 
 //    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
     // state = STATE_MODE_DIALOG;
-    setTimeout(() => {
-        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-            screen: 'MEASUREMENT_GRAPHIC',
-            show: true,
-            value: mode_measurement_values_table[1],
-            data: dataModels[mode_measurement_values_table[1]],
-            action: 'draw-grid'
-        });
-    }, 3000);
-    state = STATE_MEASUREMENT;
-    mode = MODE_MEASUREMENT_GRAPHIC;
+    // setTimeout(() => {
+    //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+    //         screen: 'MEASUREMENT_GRAPHIC',
+    //         show: true,
+    //         value: mode_measurement_values_table[1],
+    //         data: dm.dataModels[mode_measurement_values_table[1]],
+    //         action: 'draw-grid'
+    //     });
+    // }, 3000);
+    // state = STATE_MEASUREMENT;
+    // mode = MODE_MEASUREMENT_GRAPHIC;
+
+    dsp.dsp_init_test(dm);
 
     
 // События от dsp драйвера
     dsp.dspEmitter.on('dsp-response', args => {
-        viewTest.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { 
+/**
+ * TODO
+ * - обработать SLIP и CRC - это должен сделать драйвер dsp
+ * - эхо на команду - пока распознать и погасить в драйвере dsp
+ * - данные измерения. Если совпадает сценарий, то а). добавить данные в модель, б). послать на отрисовку 
+ */
+        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { 
             show: true,
             screen: 'DSP_TEST_SCREEN',
             value: 'DATA_FROM_SERIALPORT',
-            data: args.dataFromSerialPort,
+            data: args
         });
+        if (args.dataFromDsp.kf == 42){
+            dm.addDataFromDsp(mode_measurement_values_table[mode_measurement_index], args.dataFromDsp);
+            if (state === STATE_MEASUREMENT && [MODE_MEASUREMENT_GRAPHIC, MODE_MEASUREMENT_TABLE].includes(mode)){
+                view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    show: true,
+                    screen: ['MEASUREMENT_GRAPHIC', 'MEASUREMENT_TABLE'][[MODE_MEASUREMENT_GRAPHIC, MODE_MEASUREMENT_TABLE].indexOf(mode)],
+                    value: mode_measurement_values_table[mode_measurement_index],
+                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]], 
+                    action: 'draw-data'
+                });
+            }
+        }
     });
 }
 

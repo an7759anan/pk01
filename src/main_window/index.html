@@ -51,20 +51,22 @@
       <div class="screens" id="measurement-table" style="display: none;">
         <span>Маска</span><span> / </span><span>Таблица</span><span> / </span><span
           style="text-decoration: underline">Данные</span>
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td></td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
+        <div style="height: 100%; overflow-x: scroll;">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
       </div>
       <div class="screens normatives" id="normatives-SIGNAL_TO_NOISE_MEASUREMENT" style="display: none;">
         <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> /
@@ -167,8 +169,8 @@
         <div class="settings-item gen-freq-val"><span>1020</span> Гц</div>
         <div class="settings-item mes-freq-val"><span>840</span> Гц</div>
         <div class="settings-item gen-tran-lbl">Уровень передачи</div>
-        <div class="settings-item gen-tran-val">&pm; <span>00</span> дБм0</div>
-        <div class="settings-item mes-tran-val">&pm; <span>xx,x</span> дБм0</div>
+        <div class="settings-item gen-tran-val"><span>00</span> дБм0</div>
+        <div class="settings-item mes-tran-val"><span>xx,x</span> дБм0</div>
         <div class="settings-item gen-zero-lbl">Нулевой уровень</div>
         <div class="settings-item gen-zero-val"><span>-13</span> дБм0</div>
         <div class="settings-item mes-zero-val"><span>+4</span> дБм0</div>
@@ -298,6 +300,27 @@
           <td param="TEST" contenteditable="true"></td>
           <td param="PSOF" contenteditable="true"></td>
           <td param="DB10" contenteditable="true"></td>
+        </tr>
+      </tbody>
+    </table>
+    <table>
+      <caption>Имитация ответов DSP</caption>
+      <thead>
+        <tr>
+          <th>КФ</th>
+          <td></td>
+          <th>сценарий(p30)</th>
+          <th>ур.вх.сигн*10, дБ<br>int_16</th>
+          <th>част.вх., Гц<br>uint_16</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>M1 0x42</td>
+          <td><button kf="0x42">ответ</button></td>
+          <td param="30" contenteditable="true"></td>
+          <td param="4" contenteditable="true"></td>
+          <td param="3.1" contenteditable="true"></td>
         </tr>
       </tbody>
     </table>

@@ -28,16 +28,15 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
             $('.gray-area').show();
         }
         if (message.value) $('#mode-select select').val(message.value);
+    } else if (message.screen == 'DSP_TEST_SCREEN') {
+        if (message.show == true) $('#dsp-test-screen').show();
+        if (message.value && message.value == 'DATA_FROM_SERIALPORT'){
+            let $text = $('#logarea');
+            $text.val(`${$text.val()}\n<=== row: ${message.data.dataFromSerialPort}; data: ${JSON.stringify(message.data.dataFromDsp)}`)
+        }
     } else {
         if (message.show != undefined) $('.screens').hide();
         switch(message.screen){
-            case 'DSP_TEST_SCREEN':
-                if (message.show == true) $('#dsp-test-screen').show();
-                if (message.value && message.value == 'DATA_FROM_SERIALPORT'){
-                    let $text = $('#logarea');
-                    $text.val(`${$text.val()}\n<=== ${message.data}`)
-                }
-            break;
             case 'SPLASH_SCREEN':
                 if (message.show == true) $('#splash-screen').show();
             break;
@@ -208,16 +207,26 @@ addEventListener('load', (event) => {
                 default:
                     break;
             }
-                cmd["TEST"] = parseInt($tr.find('td[param="TEST"]').text());
-                cmd["PSOF"] = parseInt($tr.find('td[param="PSOF"]').text());
-                cmd["DB10"] = parseInt($tr.find('td[param="DB10"]').text());
-                break;
+            cmd["TEST"] = parseInt($tr.find('td[param="TEST"]').text());
+            cmd["PSOF"] = parseInt($tr.find('td[param="PSOF"]').text());
+            cmd["DB10"] = parseInt($tr.find('td[param="DB10"]').text());
+            ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SEND_COMMAND_TO_DSP', cmd: cmd})
+            .then(result => {
+                let $text = $('#logarea');
+                $text.val(`${$text.val()}\n===> ${result.success? result.content : 'error'}`)
+            });
+            break;
+            case 42: // имитация ответа DSP
+            cmd["p30"] = parseInt($tr.find('td[param="30"]').text());
+            cmd["p4"] = parseInt($tr.find('td[param="4"]').text());
+            cmd["p3.1"] = parseInt($tr.find('td[param="3.1"]').text());
+            ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SEND_COMMAND_FROM_DSP', cmd: cmd})
+            .then(result => {
+                let $text = $('#logarea');
+                $text.val(`${$text.val()}\n===> ${result.success? result.content : 'error'}`)
+            });
+            break;
         }
-        ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SEND_COMMAND_TO_DSP', cmd: cmd})
-        .then(result => {
-            let $text = $('#logarea');
-            $text.val(`${$text.val()}\n===> ${result.success? result.content : 'error'}`)
-        });
     });
     $('#clear-log').on('click', () => {
         $('#logarea').val('');
