@@ -22,10 +22,12 @@ const addDataFromDsp = (script, data) => {
     let dataModelData = dataModel.data;
     let x, y; //{x: -30, y: 15, isBad: true};
     /**
+     * TODO
      * - учесть settings
      * - определиться с хорошой/плохой
      * - потом вообще сделать через Observable 
      * - ...
+     * - проверка переполнения массива данных - по всем режимам!
      */
     switch(script){
         case 'TONE_SIGNAL_MEASUREMENT':
@@ -35,8 +37,23 @@ const addDataFromDsp = (script, data) => {
                 dataModel.data.shift();
             }
             dataModel.data.push({ "x": x, "y": y });
+            return true;
             break;
         case 'FREE_CHANNEL_NOISE_MEASUREMENT':
+            if (dataModel.data.length >= DATA_MAX_LENGTH){
+                dataModel.data.shift();
+            }
+            try {
+                x = 20*Math.log10(data["p8"]/10158);
+                if (isFinite(x) && !isNaN(x)){
+                    dataModel.data.push({ "x": x, "y": 0 });
+                    return true;
+                }
+                return false;
+            } catch (error){
+                console.log(error);
+                return false;
+            }
             break;
         case 'SIGNAL_TO_NOISE_MEASUREMENT':
             try {

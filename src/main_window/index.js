@@ -133,7 +133,7 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                                 $('#TONE_SIGNAL_MEASUREMENT .tsm-level-val span').text(lastValue.y);
                             break;
                             case 'FREE_CHANNEL_NOISE_MEASUREMENT':
-                        
+                                $('#FREE_CHANNEL_NOISE_MEASUREMENT .fcn-level-val span').text(lastValue.x.toLocaleString('ru',{maximumFractionDigits: 1}));
                             break;
                         }
                     }

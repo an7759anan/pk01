@@ -185,7 +185,7 @@ let slipDecoder = new slip.Decoder({
             if ([1,4,5].includes(res["p30"])){
                 res["p4"] = viewbuf.getInt16(idx++); idx++;
                 res["p3.1"] = viewbuf.getUint16(idx++); idx++;
-            } else if (res["p30"] === 2){
+            } else if ([2,3].includes(res["p30"])){
                 res["p8"] = viewbuf.getUint16(idx++); idx++;
                 res["p9"] = viewbuf.getUint16(idx++); idx++;
             }
