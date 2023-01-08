@@ -90,6 +90,7 @@ db.save();
 mode_measurement_index = db.get("variables.mode_measurement_index").value();
 settings_prop = db.get("variables.settings_prop").value();
 Object.assign(dm.settings, db.get("model_settings").value());
+let mode_measurement_value;
 
 const eventLoop = (key) => {
     if (key == KEY_STOP) {
@@ -133,9 +134,14 @@ const eventLoop = (key) => {
         case STATE_SETTINGS:
             switch (key) {
                 case KEY_SUN:
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MEASUREMENT_GRAPHIC', show: true, value: mode_measurement_values_table[mode_measurement_index] });
-                    state = STATE_MEASUREMENT;
-                    mode = MODE_MEASUREMENT_GRAPHIC;
+                    if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MEASUREMENT_GRID', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+                        state = STATE_MEASUREMENT_GRID;
+                    } else {
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MEASUREMENT_GRAPHIC', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+                        state = STATE_MEASUREMENT;
+                        mode = MODE_MEASUREMENT_GRAPHIC;
+                    }
                     break;
                 case KEY_ENTER:
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true });
@@ -272,16 +278,59 @@ const eventLoop = (key) => {
                     break;
             }
             break;
+        /**
+         * Состояние для (1) Измерение сигнала ТЧ вручную и (3) Измерение шума свободного канала
+         */
         case STATE_MEASUREMENT_GRID:
+            mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
             switch (key) {
                 case KEY_MEASURE:
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_value });
                     state = STATE_MODE_DIALOG;
+                    break;
+                case KEY_SUN:
+                        settings_prop = "gen-freq-val";
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', show: true, value: settings_prop });
+                        state = STATE_SETTINGS;
+                        break;
+                case KEY_START:
+                    dm.clearData(mode_measurement_value);
+                    let p30 = mode_measurement_index + 1;
+                    let cmd = { "kf": 0x41, "p30": p30 };
+                    switch (p30){
+                        case 1:
+                            cmd["p2"] = dm.settings["gen-tran-val"].val;
+                            cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+                            // cmd["p6"] = dm.settings["mes-voice1-val"].val;
+                            // cmd["p7"] = dm.settings["mes-voice2-val"].val;
+                            break;
+                        case 3:
+                            // cmd["p2"] = dm.settings["gen-tran-val"].val;
+                            // cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+                            // cmd["p6"] = dm.settings["mes-voice1-val"].val;
+                            // cmd["p11"] = 5;
+                            break;
+                        default:
+                            break;
+                    }
+                    cmd["TEST"] = 1;
+                    cmd["PSOF"] = dm.settings["mes-psf-val"].val;
+                    cmd["DB10"] = 0;
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { 
+                        show: true,
+                        screen: 'DSP_TEST_SCREEN',
+                        value: 'DATA_TO_SERIALPORT',
+                        data: cmd
+                    });
+                    dsp.sendCommand(cmd);
                     break;
             }
             break;
+        /**
+         * Состояние для (2) Измерение отношения Сигнал/Шум, (4) Измерение частотной характеристики и (5) Измерение амплитудной характеристики
+         */
         case STATE_MEASUREMENT:
-            let mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
+            mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
             switch (key) {
                 case KEY_SUN:
                     settings_prop = "gen-freq-val";
@@ -317,7 +366,9 @@ const eventLoop = (key) => {
                             cmd["p7"] = dm.settings["mes-voice2-val"].val;
                             break;
                         case 2:
+                            cmd["p2"] = dm.settings["gen-tran-val"].val;
                             cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+                            cmd["p6"] = dm.settings["mes-voice1-val"].val;
                             cmd["p11"] = 5;
                             break;
                         case 4:
@@ -336,6 +387,12 @@ const eventLoop = (key) => {
                     cmd["TEST"] = 1;
                     cmd["PSOF"] = dm.settings["mes-psf-val"].val;
                     cmd["DB10"] = 0;
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { 
+                        show: true,
+                        screen: 'DSP_TEST_SCREEN',
+                        value: 'DATA_TO_SERIALPORT',
+                        data: cmd
+                    });
                     dsp.sendCommand(cmd);
                     // view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                     //     show: true,
@@ -566,7 +623,7 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
             });
             break;
         case 'SEND_COMMAND_TO_DSP':
-            let mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
+            mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
             dm.clearData(mode_measurement_value);
             view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                 screen: 'MEASUREMENT_GRAPHIC',
@@ -675,7 +732,11 @@ const initTest = (dspTestWindow) => {
             value: 'DATA_FROM_SERIALPORT',
             data: args
         });
-        if (args.dataFromDsp.kf == 42){
+        if (args.dataFromDsp.kf == 0x42){
+            // if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+            // } else {
+                
+            // }
             dm.addDataFromDsp(mode_measurement_values_table[mode_measurement_index], args.dataFromDsp);
             if (state === STATE_MEASUREMENT && [MODE_MEASUREMENT_GRAPHIC, MODE_MEASUREMENT_TABLE].includes(mode)){
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
@@ -684,6 +745,13 @@ const initTest = (dspTestWindow) => {
                     value: mode_measurement_values_table[mode_measurement_index],
                     data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]], 
                     action: 'draw-data'
+                });
+            } else if (state == STATE_MEASUREMENT_GRID) {
+                view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    screen: 'MEASUREMENT_GRID',
+                    show: true,
+                    value: mode_measurement_values_table[mode_measurement_index],
+                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]], 
                 });
             }
         }

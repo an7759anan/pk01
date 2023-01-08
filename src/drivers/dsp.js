@@ -75,10 +75,10 @@ const prepareSlip = (cmd) => {
                     viewbuf.setUint8(idx++,0);
                     break;
                 case 2:
-                    viewbuf.setInt8(idx++,0); 
+                    viewbuf.setInt8(idx++,cmd["p2"]); 
                     viewbuf.setUint16(idx++,cmd["p3.1"]); idx++;
                     viewbuf.setUint16(idx++,0); idx++;
-                    viewbuf.setUint8(idx++,0);
+                    viewbuf.setUint8(idx++,cmd["p6"]);
                     viewbuf.setUint8(idx++,0);
                     viewbuf.setUint8(idx++,cmd["p11"]);
                     viewbuf.setUint8(idx++,0);
@@ -181,7 +181,7 @@ let slipDecoder = new slip.Decoder({
             res["TEST"] = viewbuf.getUint8(idx++);
             res["PSOF"] = viewbuf.getUint8(idx++);
             res["DB10"] = viewbuf.getUint8(idx++);
-        } else if (res["kf"] === 42) {
+        } else if (res["kf"] === 0x42) {
             if ([1,4,5].includes(res["p30"])){
                 res["p4"] = viewbuf.getInt16(idx++); idx++;
                 res["p3.1"] = viewbuf.getUint16(idx++); idx++;

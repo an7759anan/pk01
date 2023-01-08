@@ -14,6 +14,8 @@ const clearData = (script) => {
     dataModels[script].data.length = 0;
 }
 
+const DATA_MAX_LENGTH = 200;
+
 const addDataFromDsp = (script, data) => {
     let dataModel = dataModels[script];
     if (!dataModel) return false;
@@ -27,27 +29,54 @@ const addDataFromDsp = (script, data) => {
      */
     switch(script){
         case 'TONE_SIGNAL_MEASUREMENT':
-            break;
-        case 'SIGNAL_TO_NOISE_MEASUREMENT':
+            x = data["p3.1"];
+            y = data.p4/10;
+            if (dataModel.data.length >= DATA_MAX_LENGTH){
+                dataModel.data.shift();
+            }
+            dataModel.data.push({ "x": x, "y": y });
             break;
         case 'FREE_CHANNEL_NOISE_MEASUREMENT':
+            break;
+        case 'SIGNAL_TO_NOISE_MEASUREMENT':
+            try {
+                x = 20*Math.log10(data["p8"]/10158);
+                y = 20*Math.log10(data["p8"]/data["p9"]);
+                if (isFinite(x) && isFinite(y) && !isNaN(x) && !isNaN(y)){
+                    dataModel.data.push({ "x": x, "y": y });
+                    return true;
+                }
+                return false;
+            } catch (error){
+                console.log(error);
+                return false;
+            }
             break;
         case 'FREQUENCY_RESPONSE_MEASUREMENT':
             x = data["p3.1"];
             y = settings["gen-tran-val"].val - data.p4/10;
             console.log(`gen-tran-val=${settings["gen-tran-val"].val}; data.p4=${data.p4}; x=${x}; y=${y}`);
+            if (x != undefined) {
+                return putFrequencyResponseMark(x, y, dataModel);
+            }
+            return false;
             break;
         case 'AMPLITUDE_RESPONSE_MEASUREMENT':
+            x = data["p3.1"];
+            y = settings["gen-tran-val"].val - data.p4/10;
+            dataModel.data.push({ "x": x, "y": y });
             break;
     }
-    if (x != undefined) {
+}
+
+const putFrequencyResponseMark = (x, y, dataModel) => {
         /*
         * отфильтровать только одно значение из ряда для одних и тех же значений x
         */
         let buffer = dataModel.buffer ?? [];
         if (buffer.length){
             if(buffer[buffer.length - 1].x !== x ){
-                dataModelData.push(buffer[Math.floor(buffer.length / 2)]);
+                dataModel.data.push(buffer[Math.floor(buffer.length / 2)]);
                 buffer.length = 0;
                 buffer.push({ "x": x, "y": y });            
                 dataModel.buffer = buffer;
@@ -55,7 +84,7 @@ const addDataFromDsp = (script, data) => {
             } else if (buffer.length == 4) {
                 buffer.push({ "x": x, "y": y });            
                 dataModel.buffer = buffer;
-                dataModelData.push(buffer[Math.floor(buffer.length / 2)]);
+                dataModel.data.push(buffer[Math.floor(buffer.length / 2)]);
                 return true;
             } else if (buffer.length < 4){
                 buffer.push({ "x": x, "y": y });            
@@ -67,10 +96,15 @@ const addDataFromDsp = (script, data) => {
         buffer.push({ "x": x, "y": y });            
         dataModel.buffer = buffer;
         return true;
-    }
 }
 
 var dataModels = {
+    "TONE_SIGNAL_MEASUREMENT": {
+        data: []
+    },
+    "FREE_CHANNEL_NOISE_MEASUREMENT": {
+        data: []
+    },
     "SIGNAL_TO_NOISE_MEASUREMENT": {
         axisX: {
             name: 'Входной уровень',

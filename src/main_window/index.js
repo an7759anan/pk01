@@ -30,9 +30,20 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
         if (message.value) $('#mode-select select').val(message.value);
     } else if (message.screen == 'DSP_TEST_SCREEN') {
         if (message.show == true) $('#dsp-test-screen').show();
+        if (message.value && message.value == 'DATA_TO_SERIALPORT'){
+            let $text = $('#logarea');
+            let dataFromDspText = `===> data: ${JSON.stringify(message.data)}`;
+            $text.val(`${$text.val()}\n${dataFromDspText}`)
+        }
         if (message.value && message.value == 'DATA_FROM_SERIALPORT'){
             let $text = $('#logarea');
-            $text.val(`${$text.val()}\n<=== row: ${message.data.dataFromSerialPort}; data: ${JSON.stringify(message.data.dataFromDsp)}`)
+            let dataFromDspText = `<=== row: ${message.data.dataFromSerialPort}; data: ${JSON.stringify(message.data.dataFromDsp)}`;
+            if (message.data.dataFromDsp["p30"] === 2){
+                let d = message.data.dataFromDsp;
+                // dataFromDspText = `Вх.сиг: ${d["p8"]}; Шум: ${d["p9"]}; Ур.вх.сиг.: ${(20*Math.log10(d["p8"]/0.775)).toFixed(2)}; Отношение: ${(20*Math.log10(d["p8"]/d["p9"])).toFixed(2)}`
+                dataFromDspText = `Вх.сиг: ${d["p8"]}; Шум: ${d["p9"]}; Ур.вх.сиг.: ${(20*Math.log10(d["p8"]/10158)).toFixed(2)}; Отношение: ${(20*Math.log10(d["p8"]/d["p9"])).toFixed(2)}`
+            }
+            $text.val(`${$text.val()}\n${dataFromDspText}`)
         }
     } else {
         if (message.show != undefined) $('.screens').hide();
@@ -83,12 +94,6 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
             break;
             case 'MEASUREMENT_TABLE': 
                 switch(message.value){
-                    case 'TONE_SIGNAL_MEASUREMENT':
-
-                    break;
-                    case 'FREE_CHANNEL_NOISE_MEASUREMENT':
-                
-                    break;
                     case 'SIGNAL_TO_NOISE_MEASUREMENT':
                     case 'FREQUENCY_RESPONSE_MEASUREMENT':
                     case 'AMPLITUDE_RESPONSE_MEASUREMENT':
@@ -116,8 +121,22 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                 }
             break;
             case 'MEASUREMENT_GRID':
-                if (message.show == true){
-                    $(`#${message.value}`).show();
+                if (message.show == true){ $(`#${message.value}`).show(); }
+                if (message.data && message.data.data) {
+                    let data = message.data.data;
+                    let dataLength = data.length;
+                    if (dataLength){
+                        let lastValue = data[dataLength - 1];
+                        switch(message.value){
+                            case 'TONE_SIGNAL_MEASUREMENT':
+                                $('#TONE_SIGNAL_MEASUREMENT .tsm-freq-val span').text(lastValue.x);
+                                $('#TONE_SIGNAL_MEASUREMENT .tsm-level-val span').text(lastValue.y);
+                            break;
+                            case 'FREE_CHANNEL_NOISE_MEASUREMENT':
+                        
+                            break;
+                        }
+                    }
                 }
             break;
             case 'NORMATIVE_TABLE':
