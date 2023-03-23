@@ -26,7 +26,7 @@ const dsp_init = (dataModel) => {
     dm = dataModel;
     return new Promise((resolve, reject) => {
         serialport = new SerialPort(sp_params);
-        const rs = fs.createReadStream("./dsp.img", { highWaterMark: 16});
+        const rs = fs.createReadStream("./takt.bin", { highWaterMark: 16});
         rs.on('error', (error) => {
             resolve(`error: ${error.message}`);
         });

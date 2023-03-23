@@ -185,7 +185,7 @@ const renderTable = (data_model) => {
 addEventListener('load', (event) => {
     ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SERIAL_PORT_LIST'  })
     .then(result => {
-        $('#serial-port-select').append(result.map(el => `<option value="${el.path}">${el.friendlyName}</option>`).join(''));
+        $('#serial-port-select').append(result.map(el => `<option value="${el.path}">${el.friendlyName || el.path}</option>`).join(''));
     });
     $("#open-port").on('click', (e) => {
         ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SERIAL_PORT_OPEN', path: $('#serial-port-select').val()})
