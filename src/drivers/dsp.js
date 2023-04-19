@@ -18,7 +18,7 @@ class DspEmitterClass extends EventEmitter {};
 const dspEmitter = new DspEmitterClass();
 
 const dsp_init_test = (dataModel) => {
-    dm = dataModel;
+     dm = dataModel;
 }
 
 const dsp_init = (dataModel) => {
