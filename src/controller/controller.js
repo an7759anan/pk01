@@ -16,6 +16,7 @@ const StormDB = require('stormdb');
 
 const dm = require('../model/data_model');
 const dsp = require('../drivers/dsp');
+const controllerDsp = require('../controller/controller_dsp');
 const { SerialPort } = require('serialport');
 
 const KEY_START = 129;
@@ -322,7 +323,8 @@ const eventLoop = (key) => {
                         value: 'DATA_TO_SERIALPORT',
                         data: cmd
                     });
-                    dsp.sendCommand(cmd);
+                    // dsp.sendCommand(cmd);
+                    controllerDsp.startCommand(cmd);
                     break;
             }
             break;
