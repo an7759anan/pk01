@@ -2,8 +2,13 @@ const os = require('os');
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const controller = require ('./controller/controller');
 const webserver = require('./webserver/webserver');
-
 const path = require('path');
+
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+declare const DSP_TEST_WINDOW_WEBPACK_ENTRY: string;
+declare const DSP_TEST_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+
 let mainWindow;
 let dspTestWindow;
 
@@ -12,7 +17,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
-const createMainWindow = () => {
+const createMainWindow = (): void => {
   // Create the browser window.
   let _window = new BrowserWindow({
     alwaysOnTop: true,
@@ -21,10 +26,11 @@ const createMainWindow = () => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      preload: path.join(__dirname, '/main_window/index.js'),
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     }
   });
-  _window.loadFile(path.join(__dirname, '/main_window/index.html'));
+  // and load the index.html of the app.
+  _window.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   _window.webContents.openDevTools();
   return _window;
 };
@@ -37,10 +43,10 @@ const createDspTestWindow = () => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      preload: path.join(__dirname, '/dsp_test_window/preload.js'),      
+      preload: DSP_TEST_WINDOW_PRELOAD_WEBPACK_ENTRY,      
     }
   });
-  _window.loadFile(path.join(__dirname, '/dsp_test_window/index.html'));
+  _window.loadURL(DSP_TEST_WINDOW_WEBPACK_ENTRY);
   _window.webContents.openDevTools();
   return _window;
 };

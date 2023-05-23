@@ -1,8 +1,8 @@
-const { ipcRenderer } = require('electron');
-const { drawInit, drawData, drawPicture } = require('./drawings');
+import { ipcRenderer } from 'electron';
+import { drawInit, drawData, drawPicture } from './drawings';
 
 setTimeout(()=>{
-    let dc = {};
+    let dc: any = {};
     dc.DIAG_STROKE_WIDTH = 16;
     dc.canvas = $('#measurement-screen canvas')[0];
     dc.ctx = dc.canvas.getContext('2d');
@@ -196,11 +196,11 @@ addEventListener('load', (event) => {
     $('button[kf]').on('click', (e) => {
         let $button = $(e.target);
         let $tr = $button.closest('tr');
-        let kf = +$button.attr('kf');
+        let kf = +$button.attr('kf')!;
         let cmd = { "kf": kf };
         switch (kf){
             case 0x41: // Установить параметры
-            let p30 = +$button.attr('p30');
+            let p30 = +$button.attr('p30')!;
             cmd["p30"] = p30;
             switch (p30){
                 case 1:
@@ -259,11 +259,11 @@ addEventListener('load', (event) => {
         })
         .catch(err => {
             $text.val(`${$text.val()}\n<=== ${err}`)
-            console.log(result);
+            console.log(err);
         })
     })
     $('#touch-panel-screen button').on('click', e => {
         let $button = $(e.target).closest('button');
-        ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'EVENT_LOOP', key: +$button.attr('code') })
+        ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'EVENT_LOOP', key: +$button.attr('code')! })
     });
 });

@@ -1,10 +1,10 @@
 let DIAG_STROKE_WIDTH, canvas, ctx, gridX0, gridY0, gridWidth, gridHeight, gridX1, gridY1, diagPattern;
 
-exports.drawInit = (drawContext) => {
+export const drawInit = (drawContext) => {
    ({DIAG_STROKE_WIDTH, canvas, ctx, gridX0, gridY0, gridWidth, gridHeight, gridX1, gridY1, diagPattern} = drawContext); 
 }
 
-exports.drawPicture = (dataModel) => {
+export const drawPicture = (dataModel) => {
     ctx.clearRect(0,0,1000,1000);
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#000000';
@@ -12,7 +12,7 @@ exports.drawPicture = (dataModel) => {
     drawGrid(dataModel);
 };
 
-exports.drawData = (dataModel) => {
+export const drawData = (dataModel) => {
     let path_top, path_bottom;
     ctx.save();
     let bound = dataModel.boundaries.find(b => b.type == 'top');

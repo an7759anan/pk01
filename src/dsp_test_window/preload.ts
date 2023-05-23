@@ -1,6 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
-const { appendFile } = require('original-fs');
-const { KF } = require('../drivers/dsp');
+const { ipcRenderer } = require('electron');
 
 addEventListener('load', (event) => {
     ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SERIAL_PORT_LIST'  })
@@ -16,11 +14,11 @@ addEventListener('load', (event) => {
     $('button[kf]').on('click', (e) => {
         let $button = $(e.target);
         let $tr = $button.closest('tr');
-        let kf = +$button.attr('kf');
+        let kf = +$button.attr('kf')!;
         let cmd = { "kf": kf };
         switch (kf){
             case 0x41: // Установить параметры
-            let p30 = +$button.attr('p30');
+            let p30 = +$button.attr('p30')!;
             cmd["p30"] = p30;
             switch (p30){
                 case 1:
@@ -69,7 +67,7 @@ addEventListener('load', (event) => {
         })
         .catch(err => {
             $text.val(`${$text.val()}\n<=== ${err}`)
-            console.log(result);
+            console.log(err);
         })
 
     })

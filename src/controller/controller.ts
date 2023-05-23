@@ -1,7 +1,7 @@
 
 let tca8418_configure = null;
-const os = require('os');
-const fs = require('fs');
+import os from 'os';
+import fs from 'fs';
 
 if (os.arch() == 'arm64' ){
     tca8418_configure = require('../drivers/tca8418/tca8418_driver').tca8418_configure;
@@ -11,13 +11,13 @@ if (os.arch() == 'arm64' ){
 //   console.warn "Not using I2C", os.arch()
 //   i2c = require('./i2c.mock.js')
 
-const { ipcMain, dialog } = require('electron');
-const StormDB = require('stormdb');
+import { ipcMain, dialog } from 'electron';
+import StormDB from 'stormdb';
 
-const dm = require('../model/data_model');
-const dsp = require('../drivers/dsp');
-const controllerDsp = require('../controller/controller_dsp');
-const { SerialPort } = require('serialport');
+import dm from '../model/data_model';
+import dsp from '../drivers/dsp';
+import * as controllerDsp from '../controller/controller_dsp';
+import { SerialPort } from 'serialport';
 
 const KEY_START = 129;
 const KEY_GEN = 130;
@@ -55,7 +55,7 @@ const MODE_MEASUREMENT_GRAPHIC = 3;
 const MODE_MEASUREMENT_TABLE = 4;
 const MODE_MEASUREMENT_NORMATIVE = 5;
 
-const mode_transitions = [];
+const mode_transitions: any = [];
 mode_transitions[MODE_MEASUREMENT_GRAPHIC] = [];
 mode_transitions[MODE_MEASUREMENT_TABLE] = [];
 mode_transitions[MODE_MEASUREMENT_NORMATIVE] = [];
@@ -88,8 +88,8 @@ db.default({
 });
 db.save();
 
-mode_measurement_index = db.get("variables.mode_measurement_index").value();
-settings_prop = db.get("variables.settings_prop").value();
+let mode_measurement_index = db.get("variables.mode_measurement_index").value();
+let settings_prop = db.get("variables.settings_prop").value();
 Object.assign(dm.settings, db.get("model_settings").value());
 let mode_measurement_value;
 
