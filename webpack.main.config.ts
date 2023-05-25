@@ -17,6 +17,6 @@ export const mainConfig: Configuration = {
   },
 
   externals: {
-    
+    serialport: "commonjs2 serialport",
   }
 };
