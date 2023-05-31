@@ -22,11 +22,12 @@ const controller_dsp_init = (pDsp, pDm) => {
     if (vCmd) {
       if (vCmd?.p30 == 2) {
         if (++vStep > 5) {
+          vStep = 0;
+          args.dataFromDsp["p2"] = vCmd["p2"];
           dspEmitter.emit('controller-dsp-response', args);
           vCmd["p2"] += 5;
           if (vCmd["p2"] < 3) {
             vDsp.sendCommand(vCmd);
-            vStep = 0;
           } else {
             vCmd = null;
           }

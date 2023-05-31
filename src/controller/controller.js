@@ -3,7 +3,7 @@ let tca8418_configure = null;
 const os = require('os');
 const fs = require('fs');
 
-if (os.arch() == 'arm64' ){
+if (os.arch() == 'arm64') {
     tca8418_configure = require('../drivers/tca8418/tca8418_driver').tca8418_configure;
 }
 //  i2c = require('i2c-bus')
@@ -101,7 +101,7 @@ const eventLoop = (key) => {
             db.get("model_settings").set(dm.settings);
             db.save();
             view.close();
-        } 
+        }
         controllerDsp.sendStopCommand();
     } else {
         stop_clicks = 0;
@@ -290,15 +290,15 @@ const eventLoop = (key) => {
                     state = STATE_MODE_DIALOG;
                     break;
                 case KEY_SUN:
-                        settings_prop = "gen-freq-val";
-                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', show: true, value: settings_prop });
-                        state = STATE_SETTINGS;
-                        break;
+                    settings_prop = "gen-freq-val";
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', show: true, value: settings_prop });
+                    state = STATE_SETTINGS;
+                    break;
                 case KEY_START:
                     dm.clearData(mode_measurement_value);
                     let p30 = mode_measurement_index + 1;
                     let cmd = { "kf": 0x41, "p30": p30 };
-                    switch (p30){
+                    switch (p30) {
                         case 1:
                             cmd["p2"] = dm.settings["gen-tran-val"].val;
                             cmd["p3.1"] = dm.settings["gen-freq-val"].val;
@@ -317,7 +317,7 @@ const eventLoop = (key) => {
                     cmd["TEST"] = 1;
                     cmd["PSOF"] = dm.settings["mes-psf-val"].val;
                     cmd["DB10"] = 0;
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { 
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
                         value: 'DATA_TO_SERIALPORT',
@@ -343,23 +343,23 @@ const eventLoop = (key) => {
                     state = STATE_MODE_DIALOG;
                     break;
                 case KEY_START:
-                /**
-                 * TODO
-                 * - обнулить данные в модели
-                 * - вместо 'draw-data' послать 'draw-grid'
-                 * - послать команду с выбранным сценарием в DSP
-                 */
+                    /**
+                     * TODO
+                     * - обнулить данные в модели
+                     * - вместо 'draw-data' послать 'draw-grid'
+                     * - послать команду с выбранным сценарием в DSP
+                     */
                     dm.clearData(mode_measurement_value);
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         screen: 'MEASUREMENT_GRAPHIC',
                         show: true,
                         value: mode_measurement_value,
-                        data: dm.dataModels[mode_measurement_value], 
+                        data: dm.dataModels[mode_measurement_value],
                         action: 'draw-grid'
                     });
                     let p30 = mode_measurement_index + 1;
                     let cmd = { "kf": 0x41, "p30": p30 };
-                    switch (p30){
+                    switch (p30) {
                         case 1:
                             cmd["p2"] = dm.settings["gen-tran-val"].val;
                             cmd["p3.1"] = dm.settings["gen-freq-val"].val;
@@ -388,7 +388,7 @@ const eventLoop = (key) => {
                     cmd["TEST"] = 1;
                     cmd["PSOF"] = dm.settings["mes-psf-val"].val;
                     cmd["DB10"] = 0;
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { 
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
                         value: 'DATA_TO_SERIALPORT',
@@ -603,14 +603,14 @@ const init = (mainWindow) => {
 }
 
 ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
-    switch (args.command){
+    switch (args.command) {
         case 'SERIAL_PORT_LIST':
             let portList = await SerialPort.list();
             return portList;
             break;
         case 'SERIAL_PORT_OPEN':
             return new Promise((resolve, reject) => {
-                if (serialPort && serialPort.isOpen){
+                if (serialPort && serialPort.isOpen) {
                     serialPort.close(error => {
                         serialPort = null;
                         serialPort = new SerialPort({ path: args.path, baudRate: 115200 });
@@ -631,7 +631,7 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
                 screen: 'MEASUREMENT_GRAPHIC',
                 show: true,
                 value: mode_measurement_value,
-                data: dm.dataModels[mode_measurement_value], 
+                data: dm.dataModels[mode_measurement_value],
                 action: 'draw-grid'
             });
             return new Promise((resolve, reject) => {
@@ -648,7 +648,7 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
                     show: true,
                     screen: 'MEASUREMENT_GRAPHIC',
                     value: mode_measurement_values_table[mode_measurement_index],
-                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]], 
+                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
                     action: 'draw-data'
                 });
                 resolve(controllerDsp.sendCommand(args.cmd));
@@ -656,33 +656,34 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
             break;
         case 'LOAD_DSP_SOFT':
             return new Promise((resolve, reject) => {
-                dialog.showOpenDialog(view, 
-                    { properties: ['openFile', 'multiSelections'], 
-                    filters: [{ name: 'Бинарные файлы', extensions: ['bin'] }, { name: 'Все файлы', extensions: ['*'] }] 
-                }).then(result => {
-                    if (result.filePaths.length){
-                        const rs = fs.createReadStream(result.filePaths[0], { highWaterMark: 16});
-                        rs.on('error', (error) => {
-                            resolve(`error: ${error.message}`);
-                        });
-                        rs.on('data', (chunk) => {
-                            console.log(`chunk: ${chunk.length}`);
-                            serialPort.write(chunk);
-                        });
-                        rs.on('end', () => {
-                            // ws.close();
-                            resolve('ok!!!');
-                        });
-                        // serialPort.on('data', (chunk) => {
-                        //     console.log(chunk);
-                        // });
-                    } else {
-                        resolve('Файл не выбран');
-                    }
-                }).catch(err => {
-                    console.log(err);
-                    reject('Файл не выбран');
-                });
+                dialog.showOpenDialog(view,
+                    {
+                        properties: ['openFile', 'multiSelections'],
+                        filters: [{ name: 'Бинарные файлы', extensions: ['bin'] }, { name: 'Все файлы', extensions: ['*'] }]
+                    }).then(result => {
+                        if (result.filePaths.length) {
+                            const rs = fs.createReadStream(result.filePaths[0], { highWaterMark: 16 });
+                            rs.on('error', (error) => {
+                                resolve(`error: ${error.message}`);
+                            });
+                            rs.on('data', (chunk) => {
+                                console.log(`chunk: ${chunk.length}`);
+                                serialPort.write(chunk);
+                            });
+                            rs.on('end', () => {
+                                // ws.close();
+                                resolve('ok!!!');
+                            });
+                            // serialPort.on('data', (chunk) => {
+                            //     console.log(chunk);
+                            // });
+                        } else {
+                            resolve('Файл не выбран');
+                        }
+                    }).catch(err => {
+                        console.log(err);
+                        reject('Файл не выбран');
+                    });
             });
             break;
         case 'EVENT_LOOP':
@@ -695,7 +696,7 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
 });
 
 const initTest = (dspTestWindow) => {
-//    viewTest = dspTestWindow;
+    //    viewTest = dspTestWindow;
     view = dspTestWindow;
     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'DSP_TEST_SCREEN', show: true });
     initSettings();
@@ -703,7 +704,7 @@ const initTest = (dspTestWindow) => {
     state = STATE_MODE_DIALOG;
 
 
-//    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+    //    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
     // state = STATE_MODE_DIALOG;
     // setTimeout(() => {
     //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
@@ -718,34 +719,35 @@ const initTest = (dspTestWindow) => {
     // mode = MODE_MEASUREMENT_GRAPHIC;
 
     dsp.dsp_init_test(dm);
+    controllerDsp.controller_dsp_init(dsp, dm);
 
-    
-// События от контроллера DSP
+
+    // События от контроллера DSP
     controllerDsp.dspEmitter.on('controller-dsp-response', args => {
-/**
- * TODO
- * - обработать SLIP и CRC - это должен сделать драйвер dsp
- * - эхо на команду - пока распознать и погасить в драйвере dsp
- * - данные измерения. Если совпадает сценарий, то а). добавить данные в модель, б). послать на отрисовку 
- */
-        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { 
+        /**
+         * TODO
+         * - обработать SLIP и CRC - это должен сделать драйвер dsp
+         * - эхо на команду - пока распознать и погасить в драйвере dsp
+         * - данные измерения. Если совпадает сценарий, то а). добавить данные в модель, б). послать на отрисовку 
+         */
+        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
             show: true,
             screen: 'DSP_TEST_SCREEN',
             value: 'DATA_FROM_SERIALPORT',
             data: args
         });
-        if (args.dataFromDsp.kf == 0x42){
+        if (args.dataFromDsp.kf == 0x42) {
             // if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
             // } else {
-                
+
             // }
             dm.addDataFromDsp(mode_measurement_values_table[mode_measurement_index], args.dataFromDsp);
-            if (state === STATE_MEASUREMENT && [MODE_MEASUREMENT_GRAPHIC, MODE_MEASUREMENT_TABLE].includes(mode)){
+            if (state === STATE_MEASUREMENT && [MODE_MEASUREMENT_GRAPHIC, MODE_MEASUREMENT_TABLE].includes(mode)) {
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                     show: true,
                     screen: ['MEASUREMENT_GRAPHIC', 'MEASUREMENT_TABLE'][[MODE_MEASUREMENT_GRAPHIC, MODE_MEASUREMENT_TABLE].indexOf(mode)],
                     value: mode_measurement_values_table[mode_measurement_index],
-                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]], 
+                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
                     action: 'draw-data'
                 });
             } else if (state == STATE_MEASUREMENT_GRID) {
@@ -753,7 +755,7 @@ const initTest = (dspTestWindow) => {
                     screen: 'MEASUREMENT_GRID',
                     show: true,
                     value: mode_measurement_values_table[mode_measurement_index],
-                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]], 
+                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
                 });
             }
         }
