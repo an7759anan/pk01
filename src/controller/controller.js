@@ -102,7 +102,7 @@ const eventLoop = (key) => {
             db.save();
             view.close();
         } 
-        dsp.sendStopCommand();
+        controllerDsp.sendStopCommand();
     } else {
         stop_clicks = 0;
     }
@@ -323,8 +323,7 @@ const eventLoop = (key) => {
                         value: 'DATA_TO_SERIALPORT',
                         data: cmd
                     });
-                    // dsp.sendCommand(cmd);
-                    controllerDsp.startCommand(cmd);
+                    controllerDsp.sendCommand(cmd);
                     break;
             }
             break;
@@ -395,7 +394,7 @@ const eventLoop = (key) => {
                         value: 'DATA_TO_SERIALPORT',
                         data: cmd
                     });
-                    dsp.sendCommand(cmd);
+                    controllerDsp.sendCommand(cmd);
                     // view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                     //     show: true,
                     //     screen: 'MEASUREMENT_GRAPHIC',
@@ -538,6 +537,7 @@ const initSettings = () => {
 }
 
 const init = (mainWindow) => {
+    controllerDsp.controller_dsp_init(dsp, dm);
     view = mainWindow;
     mode = MODE_SPLASH_SCREEN;
     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SPLASH_SCREEN', show: true });
@@ -635,7 +635,7 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
                 action: 'draw-grid'
             });
             return new Promise((resolve, reject) => {
-                resolve(dsp.sendCommand(args.cmd));
+                resolve(controllerDsp.sendCommand(args.cmd));
             });
             break;
         case 'SEND_COMMAND_FROM_DSP':
@@ -651,7 +651,7 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
                     data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]], 
                     action: 'draw-data'
                 });
-                resolve(dsp.sendCommand(args.cmd));
+                resolve(controllerDsp.sendCommand(args.cmd));
             });
             break;
         case 'LOAD_DSP_SOFT':
@@ -720,8 +720,8 @@ const initTest = (dspTestWindow) => {
     dsp.dsp_init_test(dm);
 
     
-// События от dsp драйвера
-    dsp.dspEmitter.on('dsp-response', args => {
+// События от контроллера DSP
+    controllerDsp.dspEmitter.on('controller-dsp-response', args => {
 /**
  * TODO
  * - обработать SLIP и CRC - это должен сделать драйвер dsp

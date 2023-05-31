@@ -1,38 +1,62 @@
 const { ipcMain } = require('electron');
-let { settings, dataModels } = require('../model/data_model');
 const slip = require('slip');
-const { serialPort } = require('serialport');
+const { EventEmitter } = require('events');
 
-//view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index]});
+class DspEmitterClass extends EventEmitter { };
+const dspEmitter = new DspEmitterClass();
 
-const dsp_port_list = () => {
-  serialPort.list().then(function (ports) {
-    ports.forEach(function (port) {
-      console.log("Port: ", port);
-    })
+let vDsp;
+let vDm;
+let vCmd = null;
+let vStep = 0;
+
+// cmd["p2"] = dm.settings["gen-tran-val"].val;   уровень выходного сигнала {min: -55, max: 3}, step: 1
+// cmd["p3.1"] = dm.settings["gen-freq-val"].val; частота генератора
+// cmd["p6"] = dm.settings["mes-voice1-val"].val; тип входа
+// cmd["p11"] = 5;                                шаг именения уровня
+
+const controller_dsp_init = (pDsp, pDm) => {
+  vDsp = pDsp;
+  vDm = pDm;
+  vDsp.dspEmitter.on('dsp-response', args => {
+    if (vCmd) {
+      if (vCmd?.p30 == 2) {
+        if (++vStep > 5) {
+          dspEmitter.emit('controller-dsp-response', args);
+          vCmd["p2"] += 5;
+          if (vCmd["p2"] < 3) {
+            vDsp.sendCommand(vCmd);
+            vStep = 0;
+          } else {
+            vCmd = null;
+          }
+        }
+      } else {
+        dspEmitter.emit('controller-dsp-response', args);
+      }
+    }
   });
-}
-
-const init = () => {
 
 }
 
-const startCommand = () => {
-
+const sendCommand = (pCmd) => {
+  vCmd = pCmd;
+  if (vCmd?.p30 == 2) {
+    vCmd["p2"] = -55;
+    vStep = 0;
+  }
+  return vDsp.sendCommand(vCmd);
 }
 
-const stopCommand = () => {
-
-}
-
-const getState = () => {
-  return StaticRange;
+const sendStopCommand = () => {
+  vDsp.sendStopCommand();
+  vCmd = null;
 }
 
 module.exports = {
-  "init": init,
-  "startCommand": startCommand,
-  "stopCommand": stopCommand,
-  "getState": this.getState
+  "controller_dsp_init": controller_dsp_init,
+  "sendCommand": sendCommand,
+  "dspEmitter": dspEmitter,
+  "sendStopCommand": sendStopCommand,
 }
 
