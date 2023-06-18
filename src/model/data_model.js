@@ -49,7 +49,7 @@ const addDataFromDsp = (script, data) => {
     switch(script){
         case 'TONE_SIGNAL_MEASUREMENT':
             x = data["p3.1"];
-            y = data.p4/10 - settings["mes-zero-val"];
+            y = data.p4/10 - settings["mes-zero-val"].val;
             if (dataModel.data.length >= DATA_MAX_LENGTH){
                 dataModel.data.shift();
             }
