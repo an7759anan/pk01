@@ -50,7 +50,7 @@ const sendCommand = (pCmd) => {
 }
 
 const sendStartCommand = (pScriptIdx) => {
-  let mode_measurement_value = mode_measurement_values_table[pScriptIdx];
+  let mode_measurement_value = vDm.mode_measurement_values_table[pScriptIdx];
   dm.clearData(mode_measurement_value);
   let p30 = pScriptIdx + 1;
   let cmd = { "kf": 0x41, "p30": p30 };
