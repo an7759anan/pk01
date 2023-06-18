@@ -46,7 +46,7 @@ const sendCommand = (pCmd) => {
     vCmd["p2"] = -55;
     vStep = 0;
   }
-   return vDsp.sendCommand(vCmd);
+  return vDsp.sendCommand(vCmd);
 }
 
 const sendStartCommand = (pScriptIdx) => {
@@ -55,26 +55,42 @@ const sendStartCommand = (pScriptIdx) => {
   let p30 = pScriptIdx + 1;
   vCmd = { "kf": 0x41, "p30": p30 };
   switch (p30) {
-      case 1: // (1) Измерение сигнала ТЧ вручную
-          vCmd["p2"] = vDm.settings["gen-tran-val"].val;
-          vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
-          // cmd["p6"] = vDm.settings["mes-voice1-val"].val;
-          // cmd["p7"] = vDm.settings["mes-voice2-val"].val;
-          break;
-      case 3: // (3) Измерение шума свободного канала
-          // cmd["p2"] = vDm.settings["gen-tran-val"].val;
-          // cmd["p3.1"] = vDm.settings["gen-freq-val"].val;
-          // cmd["p6"] = vDm.settings["mes-voice1-val"].val;
-          // cmd["p11"] = 5;
-          break;
-      default:
-          break;
+    case 1: // (1) Измерение сигнала ТЧ вручную
+      vCmd["p2"] = vDm.settings["gen-tran-val"].val;
+      vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
+      vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
+      vCmd["p7"] = vDm.settings["mes-voice2-val"].val;
+      break;
+    case 2: // (2) Измерение отношения Сигнал/Шум
+      cmd["p2"] = dm.settings["gen-tran-val"].val;
+      cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+      cmd["p6"] = dm.settings["mes-voice1-val"].val;
+      cmd["p11"] = 5;
+      break;
+    case 3: // (3) Измерение шума свободного канала
+      // cmd["p2"] = vDm.settings["gen-tran-val"].val;
+      // cmd["p3.1"] = vDm.settings["gen-freq-val"].val;
+      // cmd["p6"] = vDm.settings["mes-voice1-val"].val;
+      // cmd["p11"] = 5;
+      break;
+    case 4: // (4) Измерение частотной характеристики
+      cmd["p2"] = dm.settings["gen-tran-val"].val;
+      cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+      cmd["p3.2"] = 3600;
+      cmd["p12"] = 100;
+      break;
+    case 5: // (5) Измерение амплитудной характеристики
+      cmd["p2"] = dm.settings["gen-tran-val"].val;
+      cmd["p11"] = 5;
+      break;
+    default:
+      break;
   }
   vCmd["TEST"] = 1;
   vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
   vCmd["DB10"] = 0;
-  vDsp.sendCommand({...vCmd});
-  return {...vCmd};
+  vDsp.sendCommand({ ...vCmd });
+  return { ...vCmd };
 }
 
 const sendStopCommand = () => {
