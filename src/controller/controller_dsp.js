@@ -10,9 +10,9 @@ let vDm;
 let vCmd = null;
 let vStep = 0;
 
-// cmd["p2"] = dm.settings["gen-tran-val"].val;   уровень выходного сигнала {min: -55, max: 3}, step: 1
-// cmd["p3.1"] = dm.settings["gen-freq-val"].val; частота генератора
-// cmd["p6"] = dm.settings["mes-voice1-val"].val; тип входа
+// cmd["p2"] = vDm.settings["gen-tran-val"].val;   уровень выходного сигнала {min: -55, max: 3}, step: 1
+// cmd["p3.1"] = vDm.settings["gen-freq-val"].val; частота генератора
+// cmd["p6"] = vDm.settings["mes-voice1-val"].val; тип входа
 // cmd["p11"] = 5;                                шаг именения уровня
 
 const controller_dsp_init = (pDsp, pDm) => {
@@ -51,27 +51,27 @@ const sendCommand = (pCmd) => {
 
 const sendStartCommand = (pScriptIdx) => {
   let mode_measurement_value = vDm.mode_measurement_values_table[pScriptIdx];
-  dm.clearData(mode_measurement_value);
+  vDm.clearData(mode_measurement_value);
   let p30 = pScriptIdx + 1;
   let cmd = { "kf": 0x41, "p30": p30 };
   switch (p30) {
       case 1: // (1) Измерение сигнала ТЧ вручную
-          cmd["p2"] = dm.settings["gen-tran-val"].val;
-          cmd["p3.1"] = dm.settings["gen-freq-val"].val;
-          // cmd["p6"] = dm.settings["mes-voice1-val"].val;
-          // cmd["p7"] = dm.settings["mes-voice2-val"].val;
+          cmd["p2"] = vDm.settings["gen-tran-val"].val;
+          cmd["p3.1"] = vDm.settings["gen-freq-val"].val;
+          // cmd["p6"] = vDm.settings["mes-voice1-val"].val;
+          // cmd["p7"] = vDm.settings["mes-voice2-val"].val;
           break;
       case 3: // (3) Измерение шума свободного канала
-          // cmd["p2"] = dm.settings["gen-tran-val"].val;
-          // cmd["p3.1"] = dm.settings["gen-freq-val"].val;
-          // cmd["p6"] = dm.settings["mes-voice1-val"].val;
+          // cmd["p2"] = vDm.settings["gen-tran-val"].val;
+          // cmd["p3.1"] = vDm.settings["gen-freq-val"].val;
+          // cmd["p6"] = vDm.settings["mes-voice1-val"].val;
           // cmd["p11"] = 5;
           break;
       default:
           break;
   }
   cmd["TEST"] = 1;
-  cmd["PSOF"] = dm.settings["mes-psf-val"].val;
+  cmd["PSOF"] = vDm.settings["mes-psf-val"].val;
   cmd["DB10"] = 0;
   vDsp.sendCommand(vCmd);
   return cmd;
