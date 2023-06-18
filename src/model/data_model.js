@@ -91,7 +91,11 @@ const addDataFromDsp = (script, data) => {
             y = settings["gen-tran-val"].val - data.p4/10;
             console.log(`gen-tran-val=${settings["gen-tran-val"].val}; data.p4=${data.p4}; x=${x}; y=${y}`);
             if (x != undefined) {
-                return putFrequencyResponseMark(x, y, dataModel);
+                let res = putFrequencyResponseMark(x, y, dataModel);
+                if (res){
+                    nominalizeFrequencyResponseMarks(dataModel);
+                }
+                return res;
             }
             return false;
             break;
@@ -100,6 +104,15 @@ const addDataFromDsp = (script, data) => {
             y = settings["gen-tran-val"].val - data.p4/10;
             dataModel.data.push({ "x": x, "y": y });
             break;
+    }
+}
+
+const nominalizeFrequencyResponseMarks = (dataModel) => {
+    let nominalMark = dataModel.buffer.find(mark => mark.x === 1020);
+    if (nominalMark && nominalMark.y){
+        for (let mark of dataModel.buffer){
+            mark.y -= nominalMark;
+        }
     }
 }
 

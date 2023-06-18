@@ -9,6 +9,7 @@ let vDsp;
 let vDm;
 let vCmd = null;
 let vStep = 0;
+let vNominalValue = null;
 
 // vCmd["p2"] = vDm.settings["gen-tran-val"].val;   уровень выходного сигнала {min: -55, max: 3}, step: 1
 // vCmd["p3.1"] = vDm.settings["gen-freq-val"].val; частота генератора
@@ -51,7 +52,7 @@ const sendStartCommand = (pScriptIdx) => {
       vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
       vCmd["p11"] = vDm.settings["gen-tran-val"].step;
       vStep = 0;
-        break;
+      break;
     case 3: // (3) Измерение шума свободного канала
       // vCmd["p2"] = vDm.settings["gen-tran-val"].val;
       // vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
@@ -59,10 +60,11 @@ const sendStartCommand = (pScriptIdx) => {
       // vCmd["p11"] = 5;
       break;
     case 4: // (4) Измерение частотной характеристики
-      vCmd["p2"] = vDm.settings["gen-tran-val"].val;
+      vCmd["p2"] = vDm.settings["gen-tran-val"].val + vDm.settings["gen-zero-val"].val;
       vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       vCmd["p3.2"] = 3600;
       vCmd["p12"] = 100;
+      vNominalValue = null;
       break;
     case 5: // (5) Измерение амплитудной характеристики
       vCmd["p2"] = vDm.settings["gen-tran-val"].val;
@@ -81,23 +83,44 @@ const sendStartCommand = (pScriptIdx) => {
 const sendStopCommand = () => {
   vDsp.sendStopCommand();
   vCmd = null;
+  vNominalValue = null;
 }
 
 const performResponse = (args) => {
-  if (vCmd?.p30 == 2) {
-    if (++vStep > 5) {
-      vStep = 0;
-      args.dataFromDsp["p2"] = vCmd["p2"];
+  switch (vCmd?.p30) {
+    case 1: // (1) Измерение сигнала ТЧ вручную
       dspEmitter.emit('controller-dsp-response', args);
-      vCmd["p2"] += vDm.settings["gen-tran-val"].step;
-      if (vCmd["p2"] <= vDm.settings["gen-tran-val"].range.max) {
-        vDsp.sendCommand(vCmd);
-      } else {
-        vCmd = null;
+      break;
+    case 2: // (2) Измерение отношения Сигнал/Шум
+      if (++vStep > 5) {
+        vStep = 0;
+        args.dataFromDsp["p2"] = vCmd["p2"];
+        dspEmitter.emit('controller-dsp-response', args);
+        vCmd["p2"] += vDm.settings["gen-tran-val"].step;
+        if (vCmd["p2"] <= vDm.settings["gen-tran-val"].range.max) {
+          vDsp.sendCommand(vCmd);
+        } else {
+          vCmd = null;
+        }
       }
-    }
-  } else {
-    dspEmitter.emit('controller-dsp-response', args);
+      break;
+    case 3: // (3) Измерение шума свободного канала
+      dspEmitter.emit('controller-dsp-response', args);
+      break;
+    case 4: // (4) Измерение частотной характеристики
+      // if (vNominalValue == null && args.dataFromDsp["p3.1"] === 1020){
+      //   vNominalValue = args.dataFromDsp["p4"];
+      //   args.dataFromDsp["p4"]
+      // } else {
+      //   args.dataFromDsp["p4"] - vNominalValue;
+      // }
+      dspEmitter.emit('controller-dsp-response', args);
+      break;
+    case 5: // (5) Измерение амплитудной характеристики
+      dspEmitter.emit('controller-dsp-response', args);
+      break;
+    default:
+      break;
   }
 }
 
