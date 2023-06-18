@@ -292,7 +292,7 @@ const eventLoop = (key) => {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
                         value: 'DATA_TO_SERIALPORT',
-                        data: controllerDsp.sendStartCommand(cmd)
+                        data: controllerDsp.sendStartCommand(mode_measurement_index)
                     });
                     ;
                     // dm.clearData(mode_measurement_value);
