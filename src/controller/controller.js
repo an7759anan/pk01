@@ -14,7 +14,7 @@ if (os.arch() == 'arm64') {
 const { ipcMain, dialog } = require('electron');
 const StormDB = require('stormdb');
 
-const { dm, mode_measurement_values_table } = require('../model/data_model');
+const dm = require('../model/data_model');
 const dsp = require('../drivers/dsp');
 const controllerDsp = require('../controller/controller_dsp');
 const { SerialPort } = require('serialport');
@@ -115,7 +115,7 @@ const eventLoop = (key) => {
         case STATE_INITIAL:
             switch (key) {
                 case KEY_MEASURE:
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: dm.mode_measurement_values_table[mode_measurement_index] });
                     state = STATE_MODE_DIALOG;
                     break;
                 case KEY_SUN:
@@ -128,11 +128,11 @@ const eventLoop = (key) => {
         case STATE_SETTINGS:
             switch (key) {
                 case KEY_SUN:
-                    if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
-                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MEASUREMENT_GRID', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+                    if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(dm.mode_measurement_values_table[mode_measurement_index])) {
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MEASUREMENT_GRID', show: true, value: dm.mode_measurement_values_table[mode_measurement_index] });
                         state = STATE_MEASUREMENT_GRID;
                     } else {
-                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MEASUREMENT_GRAPHIC', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MEASUREMENT_GRAPHIC', show: true, value: dm.mode_measurement_values_table[mode_measurement_index] });
                         state = STATE_MEASUREMENT;
                         mode = MODE_MEASUREMENT_GRAPHIC;
                     }
@@ -215,13 +215,13 @@ const eventLoop = (key) => {
             } else {
                 initSettings();
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'ERROR_DIALOG', show: false });
-                view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+                view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: dm.mode_measurement_values_table[mode_measurement_index] });
                 state = STATE_MODE_DIALOG;
-                // if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+                // if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(dm.mode_measurement_values_table[mode_measurement_index])) {
                 //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                 //         screen: 'MEASUREMENT_GRID', 
                 //         show: true, 
-                //         value: mode_measurement_values_table[mode_measurement_index],
+                //         value: dm.mode_measurement_values_table[mode_measurement_index],
                 //         data: {}
                 //     });
                 //     state = STATE_MEASUREMENT_GRID;
@@ -229,8 +229,8 @@ const eventLoop = (key) => {
                 //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                 //         screen: 'MEASUREMENT_GRAPHIC', 
                 //         show: true, 
-                //         value: mode_measurement_values_table[mode_measurement_index],
-                //         data: dataModels[mode_measurement_values_table[mode_measurement_index]],
+                //         value: dm.mode_measurement_values_table[mode_measurement_index],
+                //         data: dataModels[dm.mode_measurement_values_table[mode_measurement_index]],
                 //         action: 'draw-grid'
                 //     });
                 //     state = STATE_MEASUREMENT;
@@ -242,11 +242,11 @@ const eventLoop = (key) => {
             switch (key) {
                 case KEY_ENTER:
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: false });
-                    if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+                    if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(dm.mode_measurement_values_table[mode_measurement_index])) {
                         view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                             screen: 'MEASUREMENT_GRID',
                             show: true,
-                            value: mode_measurement_values_table[mode_measurement_index],
+                            value: dm.mode_measurement_values_table[mode_measurement_index],
                             data: {}
                         });
                         state = STATE_MEASUREMENT_GRID;
@@ -254,8 +254,8 @@ const eventLoop = (key) => {
                         view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                             screen: 'MEASUREMENT_GRAPHIC',
                             show: true,
-                            value: mode_measurement_values_table[mode_measurement_index],
-                            data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
+                            value: dm.mode_measurement_values_table[mode_measurement_index],
+                            data: dm.dataModels[dm.mode_measurement_values_table[mode_measurement_index]],
                             action: 'draw-grid'
                         });
                         state = STATE_MEASUREMENT;
@@ -264,11 +264,11 @@ const eventLoop = (key) => {
                     break;
                 case KEY_UP:
                     mode_measurement_index = Math.max(0, --mode_measurement_index);
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', value: mode_measurement_values_table[mode_measurement_index] });
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', value: dm.mode_measurement_values_table[mode_measurement_index] });
                     break;
                 case KEY_DOWN:
-                    mode_measurement_index = Math.min(mode_measurement_values_table.length - 1, ++mode_measurement_index);
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', value: mode_measurement_values_table[mode_measurement_index] });
+                    mode_measurement_index = Math.min(dm.mode_measurement_values_table.length - 1, ++mode_measurement_index);
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', value: dm.mode_measurement_values_table[mode_measurement_index] });
                     break;
             }
             break;
@@ -276,7 +276,7 @@ const eventLoop = (key) => {
          * Состояние для (1) Измерение сигнала ТЧ вручную и (3) Измерение шума свободного канала
          */
         case STATE_MEASUREMENT_GRID:
-            mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
+            mode_measurement_value = dm.mode_measurement_values_table[mode_measurement_index];
             switch (key) {
                 case KEY_MEASURE:
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_value });
@@ -331,7 +331,7 @@ const eventLoop = (key) => {
          * Состояние для (2) Измерение отношения Сигнал/Шум, (4) Измерение частотной характеристики и (5) Измерение амплитудной характеристики
          */
         case STATE_MEASUREMENT:
-            mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
+            mode_measurement_value = dm.mode_measurement_values_table[mode_measurement_index];
             switch (key) {
                 case KEY_SUN:
                     settings_prop = "gen-freq-val";
@@ -553,13 +553,13 @@ const init = (mainWindow) => {
                         state = STATE_ERROR_DIALOG;
                     } else {
                         initSettings();
-                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+                        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: dm.mode_measurement_values_table[mode_measurement_index] });
                         state = STATE_MODE_DIALOG;
-                        // if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+                        // if (['TONE_SIGNAL_MEASUREMENT','FREE_CHANNEL_NOISE_MEASUREMENT'].includes(dm.mode_measurement_values_table[mode_measurement_index])) {
                         //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         //         screen: 'MEASUREMENT_GRID', 
                         //         show: true, 
-                        //         value: mode_measurement_values_table[mode_measurement_index],
+                        //         value: dm.mode_measurement_values_table[mode_measurement_index],
                         //         data: {}
                         //     });
                         //     state = STATE_MEASUREMENT_GRID;
@@ -567,8 +567,8 @@ const init = (mainWindow) => {
                         //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         //         screen: 'MEASUREMENT_GRAPHIC', 
                         //         show: true, 
-                        //         value: mode_measurement_values_table[mode_measurement_index],
-                        //         data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
+                        //         value: dm.mode_measurement_values_table[mode_measurement_index],
+                        //         data: dm.dataModels[dm.mode_measurement_values_table[mode_measurement_index]],
                         //         action: 'draw-grid'
                         //     });
                         //     state = STATE_MEASUREMENT;
@@ -625,7 +625,7 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
             });
             break;
         case 'SEND_COMMAND_TO_DSP':
-            mode_measurement_value = mode_measurement_values_table[mode_measurement_index];
+            mode_measurement_value = dm.mode_measurement_values_table[mode_measurement_index];
             dm.clearData(mode_measurement_value);
             view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                 screen: 'MEASUREMENT_GRAPHIC',
@@ -643,12 +643,12 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
              * а сейчас надо перенаправить в DSP (упаковать в SLIP)
              */
             return new Promise((resolve, reject) => {
-                dm.addDataFromDsp(mode_measurement_values_table[mode_measurement_index], args.cmd);
+                dm.addDataFromDsp(dm.mode_measurement_values_table[mode_measurement_index], args.cmd);
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                     show: true,
                     screen: 'MEASUREMENT_GRAPHIC',
-                    value: mode_measurement_values_table[mode_measurement_index],
-                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
+                    value: dm.mode_measurement_values_table[mode_measurement_index],
+                    data: dm.dataModels[dm.mode_measurement_values_table[mode_measurement_index]],
                     action: 'draw-data'
                 });
                 resolve(controllerDsp.sendCommand(args.cmd));
@@ -700,18 +700,18 @@ const initTest = (dspTestWindow) => {
     view = dspTestWindow;
     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'DSP_TEST_SCREEN', show: true });
     initSettings();
-    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: dm.mode_measurement_values_table[mode_measurement_index] });
     state = STATE_MODE_DIALOG;
 
 
-    //    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_values_table[mode_measurement_index] });
+    //    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: dm.mode_measurement_values_table[mode_measurement_index] });
     // state = STATE_MODE_DIALOG;
     // setTimeout(() => {
     //     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
     //         screen: 'MEASUREMENT_GRAPHIC',
     //         show: true,
-    //         value: mode_measurement_values_table[1],
-    //         data: dm.dataModels[mode_measurement_values_table[1]],
+    //         value: dm.mode_measurement_values_table[1],
+    //         data: dm.dataModels[dm.mode_measurement_values_table[1]],
     //         action: 'draw-grid'
     //     });
     // }, 3000);
@@ -737,25 +737,25 @@ const initTest = (dspTestWindow) => {
             data: args
         });
         if (args.dataFromDsp.kf == 0x42) {
-            // if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(mode_measurement_values_table[mode_measurement_index])) {
+            // if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(dm.mode_measurement_values_table[mode_measurement_index])) {
             // } else {
 
             // }
-            dm.addDataFromDsp(mode_measurement_values_table[mode_measurement_index], args.dataFromDsp);
+            dm.addDataFromDsp(dm.mode_measurement_values_table[mode_measurement_index], args.dataFromDsp);
             if (state === STATE_MEASUREMENT && [MODE_MEASUREMENT_GRAPHIC, MODE_MEASUREMENT_TABLE].includes(mode)) {
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                     show: true,
                     screen: ['MEASUREMENT_GRAPHIC', 'MEASUREMENT_TABLE'][[MODE_MEASUREMENT_GRAPHIC, MODE_MEASUREMENT_TABLE].indexOf(mode)],
-                    value: mode_measurement_values_table[mode_measurement_index],
-                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
+                    value: dm.mode_measurement_values_table[mode_measurement_index],
+                    data: dm.dataModels[dm.mode_measurement_values_table[mode_measurement_index]],
                     action: 'draw-data'
                 });
             } else if (state == STATE_MEASUREMENT_GRID) {
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                     screen: 'MEASUREMENT_GRID',
                     show: true,
-                    value: mode_measurement_values_table[mode_measurement_index],
-                    data: dm.dataModels[mode_measurement_values_table[mode_measurement_index]],
+                    value: dm.mode_measurement_values_table[mode_measurement_index],
+                    data: dm.dataModels[dm.mode_measurement_values_table[mode_measurement_index]],
                 });
             }
         }
