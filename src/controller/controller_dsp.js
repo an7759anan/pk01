@@ -62,11 +62,13 @@ const sendStartCommand = (pScriptIdx) => {
       vCmd["p7"] = vDm.settings["mes-voice2-val"].val;
       break;
     case 2: // (2) Измерение отношения Сигнал/Шум
-      vCmd["p2"] = vDm.settings["gen-tran-val"].val;
+      // vCmd["p2"] = vDm.settings["gen-tran-val"].val;
+      vCmd["p2"] = -55;
       vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
       vCmd["p11"] = 5;
-      break;
+      vStep = 0;
+        break;
     case 3: // (3) Измерение шума свободного канала
       // vCmd["p2"] = vDm.settings["gen-tran-val"].val;
       // vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
