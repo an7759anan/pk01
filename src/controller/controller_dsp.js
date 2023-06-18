@@ -19,25 +19,8 @@ const controller_dsp_init = (pDsp, pDm) => {
   vDsp = pDsp;
   vDm = pDm;
   vDsp.dspEmitter.on('dsp-response', args => {
-    if (vCmd) {
-      if (vCmd?.p30 == 2) {
-        if (++vStep > 5) {
-          vStep = 0;
-          args.dataFromDsp["p2"] = vCmd["p2"];
-          dspEmitter.emit('controller-dsp-response', args);
-          vCmd["p2"] += 5;
-          if (vCmd["p2"] < 3) {
-            vDsp.sendCommand(vCmd);
-          } else {
-            vCmd = null;
-          }
-        }
-      } else {
-        dspEmitter.emit('controller-dsp-response', args);
-      }
-    }
+    if (vCmd) performResponse(args);
   });
-
 }
 
 const sendCommand = (pCmd) => {
@@ -56,7 +39,7 @@ const sendStartCommand = (pScriptIdx) => {
   vCmd = { "kf": 0x41, "p30": p30 };
   switch (p30) {
     case 1: // (1) Измерение сигнала ТЧ вручную
-      vCmd["p2"] = vDm.settings["gen-tran-val"].val;
+      vCmd["p2"] = vDm.settings["gen-tran-val"].val + vDm.settings["gen-zero-val"].val;
       vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
       vCmd["p7"] = vDm.settings["mes-voice2-val"].val;
@@ -98,6 +81,24 @@ const sendStartCommand = (pScriptIdx) => {
 const sendStopCommand = () => {
   vDsp.sendStopCommand();
   vCmd = null;
+}
+
+const performResponse = (args) => {
+  if (vCmd?.p30 == 2) {
+    if (++vStep > 5) {
+      vStep = 0;
+      args.dataFromDsp["p2"] = vCmd["p2"];
+      dspEmitter.emit('controller-dsp-response', args);
+      vCmd["p2"] += 5;
+      if (vCmd["p2"] < 3) {
+        vDsp.sendCommand(vCmd);
+      } else {
+        vCmd = null;
+      }
+    }
+  } else {
+    dspEmitter.emit('controller-dsp-response', args);
+  }
 }
 
 module.exports = {

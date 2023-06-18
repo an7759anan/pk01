@@ -7,14 +7,23 @@ const mode_measurement_values_table = [
 ];
 
 var settings = {
+    // Частота генератора
     "gen-freq-val": {val: 1020, unit: "Гц", type: "integer", range: {min: 200, max: 3500}, step: 10, next: {up: "gen-zero-val", down: "gen-tran-val", right: "mes-freq-val"}},
+    // Частота измеренная
     "mes-freq-val": {val: 840, unit: "Гц", type: "integer", range: {min: 200, max: 3500}, step: 10, next: {up: "mes-psf-val", down: "mes-tran-val", left: "gen-freq-val"}},
-    "gen-tran-val": {val: 0, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "gen-freq-val", down: "gen-zero-val", right: "mes-tran-val"}}, // &pm; 00
-    "mes-tran-val": {val: 0, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "mes-freq-val", down: "mes-zero-val", left: "gen-tran-val"}}, // &pm; xx,x
-    "gen-zero-val": {val: -13, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "gen-tran-val", down: "gen-freq-val", right: "mes-zero-val"}},
-    "mes-zero-val": {val: 4, unit: "дБм0", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "mes-tran-val", down: "mes-voice1-val", left: "gen-zero-val"}}, // + 4
+    // Номинальный уровень передачи
+    "gen-zero-val": {val: -13, unit: "дБм", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "gen-tran-val", down: "gen-freq-val", right: "mes-zero-val"}},
+    // Относительный уровень передачи
+    "gen-tran-val": {val: 0, unit: "дБмO", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "gen-freq-val", down: "gen-zero-val", right: "mes-tran-val"}}, // &pm; 00
+    // Номинальный уровень приема
+    "mes-zero-val": {val: 4, unit: "дБм", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "mes-tran-val", down: "mes-voice1-val", left: "gen-zero-val"}}, // + 4
+    // Относительный уровень приема (измеренный)
+    "mes-tran-val": {val: 0, unit: "дБмO", type: "float", range: {min: -55, max: 3}, step: 1, next: {up: "mes-freq-val", down: "mes-zero-val", left: "gen-tran-val"}}, // &pm; xx,x
+    // Вход Открытый - Закрытый
     "mes-voice1-val": {val: 0, unit: "", type: "enum", values: [{val: 0, name: "Закрытый"}, {val: 1, name: "Открытый"}], next: {up: "mes-zero-val", down: "mes-voice2-val"}},
+    // Rвх
     "mes-voice2-val": {val: 0, unit: "&ohm;", type: "enum", values: [{val: 0, name: "600"}, {val: 1, name: "> 30"}], next: {up: "mes-voice1-val", down: "mes-psf-val"}}, // &ohm;
+    // ПСОФ Включен - Выключен
     "mes-psf-val": {val: 0, unit: "", type: "enum", values: [{val: 0, name: "Выключен"}, {val: 1, name: "Включен"}], next: {up: "mes-voice2-val", down: "mes-freq-val"}}
 };
 
@@ -40,7 +49,7 @@ const addDataFromDsp = (script, data) => {
     switch(script){
         case 'TONE_SIGNAL_MEASUREMENT':
             x = data["p3.1"];
-            y = data.p4/10;
+            y = data.p4/10 - settings["mes-zero-val"];
             if (dataModel.data.length >= DATA_MAX_LENGTH){
                 dataModel.data.shift();
             }

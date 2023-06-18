@@ -318,7 +318,6 @@ const eventLoop = (key) => {
                      * - вместо 'draw-data' послать 'draw-grid'
                      * - послать команду с выбранным сценарием в DSP
                      */
-                    dm.clearData(mode_measurement_value);
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         screen: 'MEASUREMENT_GRAPHIC',
                         show: true,
@@ -332,44 +331,6 @@ const eventLoop = (key) => {
                         value: 'DATA_TO_SERIALPORT',
                         data: controllerDsp.sendStartCommand(mode_measurement_index)
                     });
-                    // let p30 = mode_measurement_index + 1;
-                    // let cmd = { "kf": 0x41, "p30": p30 };
-                    // switch (p30) {
-                    //     case 1:
-                    //         cmd["p2"] = dm.settings["gen-tran-val"].val;
-                    //         cmd["p3.1"] = dm.settings["gen-freq-val"].val;
-                    //         cmd["p6"] = dm.settings["mes-voice1-val"].val;
-                    //         cmd["p7"] = dm.settings["mes-voice2-val"].val;
-                    //         break;
-                    //     case 2:
-                    //         cmd["p2"] = dm.settings["gen-tran-val"].val;
-                    //         cmd["p3.1"] = dm.settings["gen-freq-val"].val;
-                    //         cmd["p6"] = dm.settings["mes-voice1-val"].val;
-                    //         cmd["p11"] = 5;
-                    //         break;
-                    //     case 4:
-                    //         cmd["p2"] = dm.settings["gen-tran-val"].val;
-                    //         cmd["p3.1"] = dm.settings["gen-freq-val"].val;
-                    //         cmd["p3.2"] = 3600;
-                    //         cmd["p12"] = 100;
-                    //         break;
-                    //     case 5:
-                    //         cmd["p2"] = dm.settings["gen-tran-val"].val;
-                    //         cmd["p11"] = 5;
-                    //         break;
-                    //     default:
-                    //         break;
-                    // }
-                    // cmd["TEST"] = 1;
-                    // cmd["PSOF"] = dm.settings["mes-psf-val"].val;
-                    // cmd["DB10"] = 0;
-                    // view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
-                    //     show: true,
-                    //     screen: 'DSP_TEST_SCREEN',
-                    //     value: 'DATA_TO_SERIALPORT',
-                    //     data: cmd
-                    // });
-                    // controllerDsp.sendCommand(cmd);
                     break;
                 case KEY_LEFT:
                 case KEY_RIGHT:
