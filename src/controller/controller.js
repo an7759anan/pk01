@@ -14,7 +14,7 @@ if (os.arch() == 'arm64') {
 const { ipcMain, dialog } = require('electron');
 const StormDB = require('stormdb');
 
-const dm = require('../model/data_model');
+const { dm, mode_measurement_values_table } = require('../model/data_model');
 const dsp = require('../drivers/dsp');
 const controllerDsp = require('../controller/controller_dsp');
 const { SerialPort } = require('serialport');
@@ -63,13 +63,6 @@ mode_transitions[MODE_MEASUREMENT_GRAPHIC][KEY_LEFT] = MODE_MEASUREMENT_TABLE; m
 mode_transitions[MODE_MEASUREMENT_TABLE][KEY_LEFT] = MODE_MEASUREMENT_NORMATIVE; mode_transitions[MODE_MEASUREMENT_TABLE][KEY_RIGHT] = MODE_MEASUREMENT_GRAPHIC;
 mode_transitions[MODE_MEASUREMENT_NORMATIVE][KEY_LEFT] = MODE_MEASUREMENT_GRAPHIC; mode_transitions[MODE_MEASUREMENT_NORMATIVE][KEY_RIGHT] = MODE_MEASUREMENT_TABLE;
 
-const mode_measurement_values_table = [
-    'TONE_SIGNAL_MEASUREMENT',
-    'SIGNAL_TO_NOISE_MEASUREMENT',
-    'FREE_CHANNEL_NOISE_MEASUREMENT',
-    'FREQUENCY_RESPONSE_MEASUREMENT',
-    'AMPLITUDE_RESPONSE_MEASUREMENT'
-];
 let stop_clicks = 0;
 let sun_clicks = 0;
 let view, mode, state, viewTest;
@@ -295,36 +288,43 @@ const eventLoop = (key) => {
                     state = STATE_SETTINGS;
                     break;
                 case KEY_START:
-                    dm.clearData(mode_measurement_value);
-                    let p30 = mode_measurement_index + 1;
-                    let cmd = { "kf": 0x41, "p30": p30 };
-                    switch (p30) {
-                        case 1:
-                            cmd["p2"] = dm.settings["gen-tran-val"].val;
-                            cmd["p3.1"] = dm.settings["gen-freq-val"].val;
-                            // cmd["p6"] = dm.settings["mes-voice1-val"].val;
-                            // cmd["p7"] = dm.settings["mes-voice2-val"].val;
-                            break;
-                        case 3:
-                            // cmd["p2"] = dm.settings["gen-tran-val"].val;
-                            // cmd["p3.1"] = dm.settings["gen-freq-val"].val;
-                            // cmd["p6"] = dm.settings["mes-voice1-val"].val;
-                            // cmd["p11"] = 5;
-                            break;
-                        default:
-                            break;
-                    }
-                    cmd["TEST"] = 1;
-                    cmd["PSOF"] = dm.settings["mes-psf-val"].val;
-                    cmd["DB10"] = 0;
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
                         value: 'DATA_TO_SERIALPORT',
-                        data: cmd
+                        data: controllerDsp.sendStartCommand(cmd)
                     });
-                    controllerDsp.sendCommand(cmd);
-                    break;
+                    ;
+                    // dm.clearData(mode_measurement_value);
+                    // let p30 = mode_measurement_index + 1;
+                    // let cmd = { "kf": 0x41, "p30": p30 };
+                    // switch (p30) {
+                    //     case 1: // (1) Измерение сигнала ТЧ вручную
+                    //         cmd["p2"] = dm.settings["gen-tran-val"].val;
+                    //         cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+                    //         // cmd["p6"] = dm.settings["mes-voice1-val"].val;
+                    //         // cmd["p7"] = dm.settings["mes-voice2-val"].val;
+                    //         break;
+                    //     case 3: // (3) Измерение шума свободного канала
+                    //         // cmd["p2"] = dm.settings["gen-tran-val"].val;
+                    //         // cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+                    //         // cmd["p6"] = dm.settings["mes-voice1-val"].val;
+                    //         // cmd["p11"] = 5;
+                    //         break;
+                    //     default:
+                    //         break;
+                    // }
+                    // cmd["TEST"] = 1;
+                    // cmd["PSOF"] = dm.settings["mes-psf-val"].val;
+                    // cmd["DB10"] = 0;
+                    // view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    //     show: true,
+                    //     screen: 'DSP_TEST_SCREEN',
+                    //     value: 'DATA_TO_SERIALPORT',
+                    //     data: cmd
+                    // });
+                    // controllerDsp.sendCommand(cmd);
+                    // break;
             }
             break;
         /**

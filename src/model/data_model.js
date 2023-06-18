@@ -1,3 +1,11 @@
+const mode_measurement_values_table = [
+    'TONE_SIGNAL_MEASUREMENT',
+    'SIGNAL_TO_NOISE_MEASUREMENT',
+    'FREE_CHANNEL_NOISE_MEASUREMENT',
+    'FREQUENCY_RESPONSE_MEASUREMENT',
+    'AMPLITUDE_RESPONSE_MEASUREMENT'
+];
+
 var settings = {
     "gen-freq-val": {val: 1020, unit: "Гц", type: "integer", range: {min: 200, max: 3500}, step: 10, next: {up: "gen-zero-val", down: "gen-tran-val", right: "mes-freq-val"}},
     "mes-freq-val": {val: 840, unit: "Гц", type: "integer", range: {min: 200, max: 3500}, step: 10, next: {up: "mes-psf-val", down: "mes-tran-val", left: "gen-freq-val"}},
@@ -312,5 +320,6 @@ module.exports = {
     "settings": settings,
     "clearData": clearData,
     "addDataFromDsp": addDataFromDsp,
-    "dataModels": dataModels
+    "dataModels": dataModels,
+    "mode_measurement_values_table": mode_measurement_values_table
 }

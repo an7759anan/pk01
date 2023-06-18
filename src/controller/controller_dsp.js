@@ -46,7 +46,35 @@ const sendCommand = (pCmd) => {
     vCmd["p2"] = -55;
     vStep = 0;
   }
-  return vDsp.sendCommand(vCmd);
+   return vDsp.sendCommand(vCmd);
+}
+
+const sendStartCommand = (pScriptIdx) => {
+  let mode_measurement_value = mode_measurement_values_table[pScriptIdx];
+  dm.clearData(mode_measurement_value);
+  let p30 = pScriptIdx + 1;
+  let cmd = { "kf": 0x41, "p30": p30 };
+  switch (p30) {
+      case 1: // (1) Измерение сигнала ТЧ вручную
+          cmd["p2"] = dm.settings["gen-tran-val"].val;
+          cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+          // cmd["p6"] = dm.settings["mes-voice1-val"].val;
+          // cmd["p7"] = dm.settings["mes-voice2-val"].val;
+          break;
+      case 3: // (3) Измерение шума свободного канала
+          // cmd["p2"] = dm.settings["gen-tran-val"].val;
+          // cmd["p3.1"] = dm.settings["gen-freq-val"].val;
+          // cmd["p6"] = dm.settings["mes-voice1-val"].val;
+          // cmd["p11"] = 5;
+          break;
+      default:
+          break;
+  }
+  cmd["TEST"] = 1;
+  cmd["PSOF"] = dm.settings["mes-psf-val"].val;
+  cmd["DB10"] = 0;
+  vDsp.sendCommand(vCmd);
+  return cmd;
 }
 
 const sendStopCommand = () => {
@@ -59,5 +87,6 @@ module.exports = {
   "sendCommand": sendCommand,
   "dspEmitter": dspEmitter,
   "sendStopCommand": sendStopCommand,
+  "sendStartCommand": sendStartCommand
 }
 
