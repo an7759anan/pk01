@@ -73,8 +73,8 @@ const sendStartCommand = (pScriptIdx) => {
   vCmd["TEST"] = 1;
   vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
   vCmd["DB10"] = 0;
-  vDsp.sendCommand(vCmd);
-  return cmd;
+  vDsp.sendCommand({...vCmd});
+  return {...vCmd};
 }
 
 const sendStopCommand = () => {
