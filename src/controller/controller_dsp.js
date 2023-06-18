@@ -53,11 +53,11 @@ const sendStartCommand = (pScriptIdx) => {
   let mode_measurement_value = vDm.mode_measurement_values_table[pScriptIdx];
   vDm.clearData(mode_measurement_value);
   let p30 = pScriptIdx + 1;
-  let cmd = { "kf": 0x41, "p30": p30 };
+  vCmd = { "kf": 0x41, "p30": p30 };
   switch (p30) {
       case 1: // (1) Измерение сигнала ТЧ вручную
-          cmd["p2"] = vDm.settings["gen-tran-val"].val;
-          cmd["p3.1"] = vDm.settings["gen-freq-val"].val;
+          vCmd["p2"] = vDm.settings["gen-tran-val"].val;
+          vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
           // cmd["p6"] = vDm.settings["mes-voice1-val"].val;
           // cmd["p7"] = vDm.settings["mes-voice2-val"].val;
           break;
@@ -70,9 +70,9 @@ const sendStartCommand = (pScriptIdx) => {
       default:
           break;
   }
-  cmd["TEST"] = 1;
-  cmd["PSOF"] = vDm.settings["mes-psf-val"].val;
-  cmd["DB10"] = 0;
+  vCmd["TEST"] = 1;
+  vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
+  vCmd["DB10"] = 0;
   vDsp.sendCommand(vCmd);
   return cmd;
 }
