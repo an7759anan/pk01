@@ -46,10 +46,10 @@ const sendStartCommand = (pScriptIdx) => {
       break;
     case 2: // (2) Измерение отношения Сигнал/Шум
       // vCmd["p2"] = vDm.settings["gen-tran-val"].val;
-      vCmd["p2"] = -55;
+      vCmd["p2"] = vDm.settings["gen-tran-val"].range.min + vDm.settings["gen-zero-val"].val;
       vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
-      vCmd["p11"] = 5;
+      vCmd["p11"] = vDm.settings["gen-tran-val"].step;
       vStep = 0;
         break;
     case 3: // (3) Измерение шума свободного канала
@@ -89,8 +89,8 @@ const performResponse = (args) => {
       vStep = 0;
       args.dataFromDsp["p2"] = vCmd["p2"];
       dspEmitter.emit('controller-dsp-response', args);
-      vCmd["p2"] += 5;
-      if (vCmd["p2"] < 3) {
+      vCmd["p2"] += vDm.settings["gen-tran-val"].step;
+      if (vCmd["p2"] <= vDm.settings["gen-tran-val"].range.max) {
         vDsp.sendCommand(vCmd);
       } else {
         vCmd = null;
