@@ -39,9 +39,12 @@ const dsp_init = (dataModel) => {
             resolve('ok!!!');
         });
 
-        // serialport.on('data', (chunk) => {
-        //     console.log(chunk);
-        // });
+        serialport.on('data', (chunk) => {
+            console.log(chunk);
+            if (!loadMode){
+                slipDecoder.decode(chunk);
+            }
+        });
 
     });
 }
