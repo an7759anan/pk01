@@ -509,6 +509,7 @@ const init = (mainWindow) => {
                     }).
                         then(data => {
                             console.log(data);
+                            subscribeControllerDspEvents();
                         }).
                         catch(data => console.log(data));
                     // console.log('...keyboard listening start...');
@@ -650,8 +651,11 @@ const initTest = (dspTestWindow) => {
     dsp.dsp_init_test(dm);
     controllerDsp.controller_dsp_init(dsp, dm);
 
-
     // События от контроллера DSP
+    subscribeControllerDspEvents();
+}
+
+const subscribeControllerDspEvents = () => {
     controllerDsp.dspEmitter.on('controller-dsp-response', args => {
         /**
          * TODO
