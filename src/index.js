@@ -1,6 +1,6 @@
 const os = require('os');
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
-const controller = require ('./controller/controller');
+const controller = require('./controller/controller');
 const webserver = require('./webserver/webserver');
 
 const path = require('path');
@@ -16,7 +16,7 @@ const createMainWindow = () => {
   // Create the browser window.
   let _window = new BrowserWindow({
     alwaysOnTop: true,
-//    fullscreen: true,
+    //    fullscreen: true,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
@@ -31,13 +31,13 @@ const createMainWindow = () => {
 
 const createDspTestWindow = () => {
   let _window = new BrowserWindow({
-//    alwaysOnTop: true,
+    //    alwaysOnTop: true,
     fullscreen: false,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      preload: path.join(__dirname, '/dsp_test_window/preload.js'),      
+      preload: path.join(__dirname, '/dsp_test_window/preload.js'),
     }
   });
   _window.loadFile(path.join(__dirname, '/dsp_test_window/index.html'));
@@ -45,16 +45,16 @@ const createDspTestWindow = () => {
   return _window;
 };
 
-app.allowRendererProcessReuse=false;
+app.allowRendererProcessReuse = false;
 
 app.on('ready', () => {
-  if (false && os.arch() == 'arm64'){
+  if (false && os.arch() == 'arm64') {
     mainWindow = createMainWindow();
     mainWindow.once('ready-to-show', () => {
       controller.init(mainWindow);
     })
   } else {
-//    dspTestWindow = createDspTestWindow();
+    //    dspTestWindow = createDspTestWindow();
     dspTestWindow = createMainWindow();
     dspTestWindow.once('ready-to-show', () => {
       controller.initTest(dspTestWindow);
@@ -73,9 +73,9 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    if (os.arch() == 'arm64'){
+    if (os.arch() == 'arm64') {
       createMainWindow();
-        controller.init();
+      controller.init();
     } else {
       createDspTestWindow();
     }
