@@ -25,7 +25,7 @@ const createMainWindow = () => {
     }
   });
   _window.loadFile(path.join(__dirname, '/main_window/index.html'));
-  _window.webContents.openDevTools();
+  // _window.webContents.openDevTools();
   return _window;
 };
 
@@ -41,7 +41,7 @@ const createDspTestWindow = () => {
     }
   });
   _window.loadFile(path.join(__dirname, '/dsp_test_window/index.html'));
-  _window.webContents.openDevTools();
+  // _window.webContents.openDevTools();
   return _window;
 };
 
