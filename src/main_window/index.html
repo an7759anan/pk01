@@ -1,135 +1,353 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Debugg Window</title>
-    <link rel="stylesheet" href="index.css">
-    <script>window.$ = window.jQuery = require('jquery')</script>
-  </head>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Debugg Window</title>
+  <link rel="stylesheet" href="index.css">
+  <script>window.$ = window.jQuery = require('jquery')</script>
+</head>
+
 <body>
-  <div class="screens gray-area" style="display: none;"></div>
-  <div id="common-container">
-    <div class="screens dialog-frame" id="mode-select" style="display: none;">
-      <div class="dialog-content">
-        <select size="5" multiple autofocus>
-          <option value="TONE_SIGNAL_MEASUREMENT">ИЗМЕРЕНИЕ СИГНАЛА ТЧ ВРУЧНУЮ</option>
-          <option value="SIGNAL_TO_NOISE_MEASUREMENT">ИЗМЕРЕНИЕ ОТНОШЕНИЯ СИГНАЛ/ШУМ</option>
-          <option value="FREE_CHANNEL_NOISE_MEASUREMENT">ИЗМЕРЕНИЕ ШУМА СВОБОДНОГО КАНАЛА</option>
-          <option value="FREQUENCY_RESPONSE_MEASUREMENT">ИЗМЕРЕНИЕ ЧАСТОТНОЙ ХАРАКТЕРИСТИКИ</option>
-          <option value="AMPLITUDE_RESPONSE_MEASUREMENT">ИЗМЕРЕНИЕ АМПЛИТУДНОЙ ХАРАКТЕРИСТИКИ</option>
-        </select>
+  <div id="combined-container">
+    <div id="common-container" style="position: relative; text-align: center; width: 900px; height: 530px;">
+      <div class="screens gray-area" style="display: none;"></div>
+      <div class="screens dialog-frame" id="mode-select" style="display: none;">
+        <div class="dialog-content">
+          <select size="5" multiple autofocus>
+            <option value="TONE_SIGNAL_MEASUREMENT">ИЗМЕРЕНИЕ СИГНАЛА ТЧ ВРУЧНУЮ</option>
+            <option value="SIGNAL_TO_NOISE_MEASUREMENT">ИЗМЕРЕНИЕ ОТНОШЕНИЯ СИГНАЛ/ШУМ</option>
+            <option value="FREE_CHANNEL_NOISE_MEASUREMENT">ИЗМЕРЕНИЕ ШУМА СВОБОДНОГО КАНАЛА</option>
+            <option value="FREQUENCY_RESPONSE_MEASUREMENT">ИЗМЕРЕНИЕ ЧАСТОТНОЙ ХАРАКТЕРИСТИКИ</option>
+            <option value="AMPLITUDE_RESPONSE_MEASUREMENT">ИЗМЕРЕНИЕ АМПЛИТУДНОЙ ХАРАКТЕРИСТИКИ</option>
+          </select>
+        </div>
+      </div>
+      <div class="screens" id="splash-screen" style="display: none;">
+        <section>MORION St.</section>
+        <section>Telecom System</section>
+        <section>Fax 342 227-19-16</section>
+        <section>Russia Perm</section>
+      </div>
+      <div class="screens" id="dsp-loading-screen" style="display: none;">
+        <section id="dsp-loading-section">Загрузка ПО DSP ... </section>
+      </div>
+      <div class="screens" id="test-screen" style="display: none;">
+        <section id="opk_soft_version">Тест ОПК версия ПО ... </section>
+        <section id="switch_soft_version">Тест коммутатора версия ПО... </section>
+        <section id="dsp_soft_version">Тест DSP версия ПО... </section>
+        <section id="channel">Тест канала... </section>
+      </div>
+      <div class="screens dialog-frame" id="error-dialog" style="display: none;">
+        <div class="dialog-content">
+          Продолжить работу, несмотря на предупреждения?
+        </div>
+      </div>
+      <div class="screens" id="measurement-screen" style="display: none;">
+        <div>
+          <span id="script-name" style="float: left;">Script</span>
+          <div style="float: right;">
+            <span style="text-decoration: underline">Маска</span><span> / </span><span>Таблица</span><span> / </span><span>Данные</span>
+          </div>
+        </div>
+        <canvas width="800" height="480"></canvas>
+      </div>
+      <div class="screens" id="measurement-table" style="display: none;">
+        <div>
+          <span id="script-name" style="float: left;">Script</span>
+          <div style="float: right;">
+            <span>Маска</span><span> / </span><span>Таблица</span><span> / </span><span style="text-decoration: underline">Данные</span>
+          </div>
+        </div>
+        <div style="height: 100%; overflow-x: scroll;">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+      </div>
+      <div class="screens normatives" id="normatives-SIGNAL_TO_NOISE_MEASUREMENT" style="display: none;">
+        <div>
+          <span id="script-name" style="float: left;">Script</span>
+          <div style="float: right;">
+            <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> / </span><span>Данные</span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Уровень входного сигнала, дБм0</th>
+              <th>Отношение С/Ш квантования, дБ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>от 0 до минус 30</td>
+              <td>Не менее 33</td>
+            </tr>
+            <tr>
+              <td>минус 40</td>
+              <td>Не менее 27</td>
+            </tr>
+            <tr>
+              <td>минус 45</td>
+              <td>Не менее 22</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="screens normatives" id="normatives-FREQUENCY_RESPONSE_MEASUREMENT" style="display: none;">
+        <div>
+          <span id="script-name" style="float: left;">Script</span>
+          <div style="float: right;">
+            <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> / </span><span>Данные</span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Частота (f), Гц</th>
+              <th>Затухание, дБ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>от 200 до 300</td>
+              <td>-0,5/+ не нормируется</td>
+            </tr>
+            <tr>
+              <td>от 300 до 2 400</td>
+              <td>&plusmn;0,5</td>
+            </tr>
+            <tr>
+              <td>от 2 400 до 3 000</td>
+              <td>-0,5/0,9</td>
+            </tr>
+            <tr>
+              <td>от 3 000 до 3 400</td>
+              <td>-0,5/1,8</td>
+            </tr>
+            <tr>
+              <td>от 3 400 до 3 600</td>
+              <td>-0,5/+ не нормируется</td>
+            </tr>
+            <tr>
+              <td>от 3 600 до 3 800</td>
+              <td>0/+ не нормируется</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="screens normatives" id="normatives-AMPLITUDE_RESPONSE_MEASUREMENT" style="display: none;">
+        <div>
+          <span id="script-name" style="float: left;">Script</span>
+          <div style="float: right;">
+            <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> / </span><span>Данные</span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Уровень входного сигнала, дБм0</th>
+              <th>Затухание, дБ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>от 3 до 0</td>
+              <td>&plusmn;1,0</td>
+            </tr>
+            <tr>
+              <td>от 0 до минус 40</td>
+              <td>&plusmn;0,5</td>
+            </tr>
+            <tr>
+              <td>от минус 40 до минус 50</td>
+              <td>&plusmn;1,0</td>
+            </tr>
+            <tr>
+              <td>от минус 50 до минус 55</td>
+              <td>&plusmn;3,0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="screens" id="settings-grid" style="display: none;">
+        <div class="settings-item gen-settings">Передача</div>
+        <div class="settings-item mes-settings">Прием</div>
+        <div class="settings-item gen-freq-lbl">Частота генератора</div>
+        <div class="settings-item gen-freq-val"><span>1020</span> Гц</div>
+        <div class="settings-item mes-freq-val"><span>840</span> Гц</div>
+        <div class="settings-item gen-tran-lbl">Относительный уровень</div>
+        <div class="settings-item gen-tran-val"><span>00</span> дБмO</div>
+        <div class="settings-item mes-tran-val"><span>xx,x</span> дБмO</div>
+        <div class="settings-item gen-zero-lbl">Номинальный уровень</div>
+        <div class="settings-item gen-zero-val"><span>-13</span> дБм</div>
+        <div class="settings-item mes-zero-val"><span>+4</span> дБм</div>
+        <div class="settings-item mes-voice1-lbl">Вход</div>
+        <div class="settings-item mes-voice1-val"><span>Закрытый</span></div>
+        <div class="settings-item mes-voice2-lbl">Rвх</div>
+        <div class="settings-item mes-voice2-val"><span>600</span> &ohm;</div>
+        <div class="settings-item mes-psf-lbl">Фильтр ПСФ</div>
+        <div class="settings-item mes-psf-val"><span>Выключен</span></div>
+      </div>
+      <div class="screens" id="TONE_SIGNAL_MEASUREMENT" style="display: none;">
+        <div class="tone-signal-item tsm-freq-lbl">Измеренное значение частоты</div>
+        <div class="tone-signal-item tsm-freq-val"><span></span> Гц</div>
+        <div class="tone-signal-item tsm-level-lbl">Уровень измеренной частоты</div>
+        <div class="tone-signal-item tsm-level-val"><span></span> дБм0</div>
+      </div>
+      <div class="screens" id="FREE_CHANNEL_NOISE_MEASUREMENT" style="display: none;">
+        <div class="free-channel-noise-item fcn-level-lbl">Шум свободного канала</div>
+        <div class="free-channel-noise-item fcn-level-val"><span></span> дБм0</div>
       </div>
     </div>
-    <div class="screens" id="splash-screen" style="display: none;">
-      <section>MORION St.</section>
-      <section>Telecom System</section>
-      <section>Fax 342 227-19-16</section>
-      <section>Russia Perm</section>
-    </div>
-    <div class="screens" id="test-screen" style="display: none;">
-      <section id="opk_soft_version">Тест ОПК версия ПО ... </section>
-      <section id="switch_soft_version">Тест коммутатора версия ПО... </section>
-      <section id="dsp_soft_version">Тест DSP версия ПО... </section>
-      <section id="channel">Тест канала... </section>
-    </div>
-    <div class="screens dialog-frame" id="error-dialog" style="display: none;">
-      <div class="dialog-content">
-        Продолжить работу, несмотря на предупреждения?
-      </div>
-    </div>
-    <div class="screens" id="measurement-screen" style="display: none;">
-      <span style="text-decoration: underline">Маска</span><span> / </span><span>Таблица</span><span> / </span><span>Данные</span>
-      <canvas width="800" height="480"></canvas>
-    </div>
-    <div class="screens" id="measurement-table" style="display: none;">
-      <span>Маска</span><span> / </span><span>Таблица</span><span> / </span><span style="text-decoration: underline">Данные</span>
-      <table>
-        <thead>
-          <tr>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="screens normatives" id="normatives-SIGNAL_TO_NOISE_MEASUREMENT" style="display: none;">
-      <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> / </span><span>Данные</span>
-      <table>
-        <thead>
-          <tr><th>Уровень входного сигнала, дБм0</th><th>Отношение С/Ш квантования, дБ</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>от 0 до минус 30</td><td>Не менее 33</td></tr>
-          <tr><td>минус 40</td><td>Не менее 27</td></tr>
-          <tr><td>минус 45</td><td>Не менее 22</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="screens normatives" id="normatives-FREQUENCY_RESPONSE_MEASUREMENT" style="display: none;">
-      <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> / </span><span>Данные</span>
-      <table>
-        <thead>
-          <tr><th>Частота (f), Гц</th><th>Затухание, дБ</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>от 200 до 300</td><td>-0,5/+ не нормируется</td></tr>
-          <tr><td>от 300 до 2 400</td><td>&plusmn;0,5</td></tr>
-          <tr><td>от 2 400 до 3 000</td><td>-0,5/0,9</td></tr>
-          <tr><td>от 3 000 до 3 400</td><td>-0,5/1,8</td></tr>
-          <tr><td>от 3 400 до 3 600</td><td>-0,5/+ не нормируется</td></tr>
-          <tr><td>от 3 600 до 3 800</td><td>0/+ не нормируется</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="screens normatives" id="normatives-AMPLITUDE_RESPONSE_MEASUREMENT" style="display: none;">
-      <span>Маска</span><span> / </span><span style="text-decoration: underline">Таблица</span><span> / </span><span>Данные</span>
-      <table>
-        <thead>
-          <tr><th>Уровень входного сигнала, дБм0</th><th>Затухание, дБ</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>от 3 до 0</td><td>&plusmn;1,0</td></tr>
-          <tr><td>от 0 до минус 40</td><td>&plusmn;0,5</td></tr>
-          <tr><td>от минус 40 до минус 50</td><td>&plusmn;1,0</td></tr>
-          <tr><td>от минус 50 до минус 55</td><td>&plusmn;3,0</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="screens" id="settings-grid" style="display: none;">
-      <div class="settings-item gen-settings">Установки генератора</div>
-      <div class="settings-item mes-settings">Измерение</div>
-      <div class="settings-item gen-freq-lbl">Частота генератора</div>
-      <div class="settings-item gen-freq-val"><span>1020</span> Гц</div>
-      <div class="settings-item mes-freq-val"><span>840</span> Гц</div>
-      <div class="settings-item gen-tran-lbl">Уровень передачи</div>
-      <div class="settings-item gen-tran-val">&pm; <span>00</span> дБм0</div>
-      <div class="settings-item mes-tran-val">&pm; <span>xx,x</span> дБм0</div>
-      <div class="settings-item gen-zero-lbl">Нулевой уровень</div>
-      <div class="settings-item gen-zero-val"><span>-13</span> дБм0</div>
-      <div class="settings-item mes-zero-val"><span>+4</span> дБм0</div>
-      <div class="settings-item mes-voice1-lbl">Вход ТЧ</div>
-      <div class="settings-item mes-voice1-val"><span>Закрытый</span></div>
-      <div class="settings-item mes-voice2-lbl">Вход ТЧ</div>
-      <div class="settings-item mes-voice2-val"><span>600</span> &ohm;</div>
-      <div class="settings-item mes-psf-lbl">Фильтр ПСФ</div>
-      <div class="settings-item mes-psf-val"><span>Выключен</span></div>
-    </div>
-    <div class="screens" id="TONE_SIGNAL_MEASUREMENT" style="display: none;">
-      <div class="tone-signal-item tsm-freq-lbl">Измеренное значение частоты</div>
-      <div class="tone-signal-item tsm-freq-val"><span>1020</span> Гц</div>
-      <div class="tone-signal-item tsm-level-lbl">Уровень измеренной частоты</div>
-      <div class="tone-signal-item tsm-level-val"><span>3</span> дБм0</div>
-    </div>
-    <div class="screens" id="FREE_CHANNEL_NOISE_MEASUREMENT" style="display: none;">
-      <div class="free-channel-noise-item fcn-level-lbl">Шум свободного канала</div>
-      <div class="free-channel-noise-item fcn-level-val"><span>-68</span> дБм0</div>
+
+    <div id="touch-panel-screen">
+      <button code="129">ПУСК</button>
+      <button code="130">ГЕН</button>
+      <button code="131">ИЗМ</button>
+      <button code="132"><img src="../img/will.png"></button>
+      <button code="133">1</button>
+      <button code="134">2</button>
+      <button code="135">3</button>
+      <button code="136">4</button>
+      <button code="139">СТОП</button>
+      <button code="141" style="grid-column: 3;"><img src="../img/arrow_to_up.png"></button>
+      <button code="143" style="grid-column: 5;">5</button>
+      <button code="144">6</button>
+      <button code="145">7</button>
+      <button code="146">8</button>
+      <button code="149">УДЕР</button>
+      <button code="150"><img src="../img/arrow_to_left.png"></button>
+      <button code="151"><img src="../img/arrow_to_down.png"></button>
+      <button code="152"><img src="../img/arrow_to_right.png"></button>
+      <button code="153">9</button>
+      <button code="154">0</button>
+      <button code="156" style="grid-column: 8;"><img src="../img/return.png"></button>
     </div>
   </div>
+  <div id="dsp-test-screen" style="display: none;">
+    <select id="serial-port-select"></select>
+    <button id="open-port">Закрыт</button>
+    <button id="load-sdp-soft">Загрузить ПО SDP</button>
+    <table>
+      <caption>Команды установки режимов</caption>
+      <thead>
+        <tr>
+          <th rowspan="2">КФ</th>
+          <th rowspan="2">команда</th>
+          <th colspan="11">параметры</th>
+          <th rowspan="2">ответ</th>
+        </tr>
+        <tr>
+          <td>сценарий(p30)</td>
+          <td>ур.вых.сиг.<br>p2, дБм0<br>int_8 -55..3</td>
+          <td>част.ген.<br>p3, Гц<br>uint_16 200..3600</td>
+          <td>част.ген.<br>p3, Гц<br>uint_16 200..3600</td>
+          <td>тип вх.<br>p6<br>uint_8 0 - закрытый/1 - открытый</td>
+          <td>вх.сопр.<br>p7<br>uint_8 0 – 600 Ом/1 – > 30 кОм</td>
+          <td>шаг ур.<br>p11, дБм0<br>uint_8 1..5</td>
+          <td>шаг част.<br>p12, Гц<br>uint_8 10..100</td>
+          <td>TEST</td>
+          <td>PSOF</td>
+          <td>DB10</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="4">M1 0x41</td>
+          <td rowspan="4">Установить параметры</td>
+          <td><button kf="0x41" p30="1">сигнал ТЧ</button></td>
+          <td param="2" contenteditable="true"></td>
+          <td param="3.1" contenteditable="true"></td>
+          <td param="3.2"></td>
+          <td param="6" contenteditable="true"></td>
+          <td param="7" contenteditable="true"></td>
+          <td param="11"></td>
+          <td param="12"></td>
+          <td param="TEST" contenteditable="true"></td>
+          <td param="PSOF" contenteditable="true"></td>
+          <td param="DB10" contenteditable="true"></td>
+          <td rowspan="4"></td>
+        </tr>
+        <tr>
+          <td><button kf="0x41" p30="2">отношение шум/сигнал</button></td>
+          <td param="2"></td>
+          <td param="3.1" contenteditable="true"></td>
+          <td param="3.2"></td>
+          <td param="6"></td>
+          <td param="7"></td>
+          <td param="11" contenteditable="true"></td>
+          <td param="12"></td>
+          <td param="TEST" contenteditable="true"></td>
+          <td param="PSOF" contenteditable="true"></td>
+          <td param="DB10" contenteditable="true"></td>
+        </tr>
+
+        <tr>
+          <td><button kf="0x41" p30="4">частотная характеристика</button></td>
+          <td param="2" contenteditable="true"></td>
+          <td param="3.1" contenteditable="true"></td>
+          <td param="3.2" contenteditable="true"></td>
+          <td param="6"></td>
+          <td param="7"></td>
+          <td param="11"></td>
+          <td param="12" contenteditable="true"></td>
+          <td param="TEST" contenteditable="true"></td>
+          <td param="PSOF" contenteditable="true"></td>
+          <td param="DB10" contenteditable="true"></td>
+        </tr>
+        <tr>
+          <td><button kf="0x41" p30="5">амплитудная характеристика</button></td>
+          <td param="2" contenteditable="true"></td>
+          <td param="3.1"></td>
+          <td param="3.2"></td>
+          <td param="6"></td>
+          <td param="7"></td>
+          <td param="11" contenteditable="true"></td>
+          <td param="12"></td>
+          <td param="TEST" contenteditable="true"></td>
+          <td param="PSOF" contenteditable="true"></td>
+          <td param="DB10" contenteditable="true"></td>
+        </tr>
+      </tbody>
+    </table>
+    <table>
+      <caption>Имитация ответов DSP</caption>
+      <thead>
+        <tr>
+          <th>КФ</th>
+          <td></td>
+          <th>сценарий(p30)</th>
+          <th>ур.вх.сигн*10, дБ<br>int_16</th>
+          <th>част.вх., Гц<br>uint_16</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>M1 0x42</td>
+          <td><button kf="0x42">ответ</button></td>
+          <td param="30" contenteditable="true"></td>
+          <td param="4" contenteditable="true"></td>
+          <td param="3.1" contenteditable="true"></td>
+        </tr>
+      </tbody>
+    </table>
+    <textarea readonly id="logarea" rows="10" cols="45"></textarea>
+    <button id="clear-log">Очистить</button>
+  </div>
+
 </body>
+
 </html>

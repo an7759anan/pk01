@@ -28,11 +28,32 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
             $('.gray-area').show();
         }
         if (message.value) $('#mode-select select').val(message.value);
+    } else if (message.screen == 'DSP_TEST_SCREEN') {
+        if (message.show == true) $('#dsp-test-screen').show();
+        if (message.value && message.value == 'DATA_TO_SERIALPORT'){
+            let $text = $('#logarea');
+            let dataFromDspText = `===> data: ${JSON.stringify(message.data)}`;
+            $text.val(`${$text.val()}\n${dataFromDspText}`)
+        }
+        if (message.value && message.value == 'DATA_FROM_SERIALPORT'){
+            let $text = $('#logarea');
+            let dataFromDspText = `<=== row: ${message.data.dataFromSerialPort}; data: ${JSON.stringify(message.data.dataFromDsp)}`;
+            if (message.data.dataFromDsp["p30"] === 2){
+                let d = message.data.dataFromDsp;
+                // dataFromDspText = `Вх.сиг: ${d["p8"]}; Шум: ${d["p9"]}; Ур.вх.сиг.: ${(20*Math.log10(d["p8"]/0.775)).toFixed(2)}; Отношение: ${(20*Math.log10(d["p8"]/d["p9"])).toFixed(2)}`
+                dataFromDspText = `Вх.сиг: ${d["p8"]}; Шум: ${d["p9"]}; Ур.вх.сиг.: ${(20*Math.log10(d["p8"]/10158)).toFixed(2)}; Отношение: ${(20*Math.log10(d["p8"]/d["p9"])).toFixed(2)}`
+            }
+            $text.val(`${$text.val()}\n${dataFromDspText}`)
+        }
     } else {
         if (message.show != undefined) $('.screens').hide();
         switch(message.screen){
             case 'SPLASH_SCREEN':
                 if (message.show == true) $('#splash-screen').show();
+            break;
+            case 'DSP_LOADING':
+                if (message.show == true) $('#dsp-loading-screen').show();
+                if (message.dsp_loading_result) $('#dsp-loading-section').text($('#dsp-loading-section').text() + message.dsp_loading_result);
             break;
             case 'TEST_INFO':
                 if (message.show == true) $('#test-screen').show();
@@ -73,12 +94,6 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
             break;
             case 'MEASUREMENT_TABLE': 
                 switch(message.value){
-                    case 'TONE_SIGNAL_MEASUREMENT':
-
-                    break;
-                    case 'FREE_CHANNEL_NOISE_MEASUREMENT':
-                
-                    break;
                     case 'SIGNAL_TO_NOISE_MEASUREMENT':
                     case 'FREQUENCY_RESPONSE_MEASUREMENT':
                     case 'AMPLITUDE_RESPONSE_MEASUREMENT':
@@ -106,8 +121,22 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                 }
             break;
             case 'MEASUREMENT_GRID':
-                if (message.show == true){
-                    $(`#${message.value}`).show();
+                if (message.show == true){ $(`#${message.value}`).show(); }
+                if (message.data && message.data.data) {
+                    let data = message.data.data;
+                    let dataLength = data.length;
+                    if (dataLength){
+                        let lastValue = data[dataLength - 1];
+                        switch(message.value){
+                            case 'TONE_SIGNAL_MEASUREMENT':
+                                $('#TONE_SIGNAL_MEASUREMENT .tsm-freq-val span').text(lastValue.x);
+                                $('#TONE_SIGNAL_MEASUREMENT .tsm-level-val span').text(lastValue.y);
+                            break;
+                            case 'FREE_CHANNEL_NOISE_MEASUREMENT':
+                                $('#FREE_CHANNEL_NOISE_MEASUREMENT .fcn-level-val span').text(lastValue.x.toLocaleString('ru',{maximumFractionDigits: 1}));
+                            break;
+                        }
+                    }
                 }
             break;
             case 'NORMATIVE_TABLE':
@@ -149,3 +178,92 @@ const renderTable = (data_model) => {
         </tr>
     `));
 }
+
+/**
+ * DSP тестовое представление
+ */
+addEventListener('load', (event) => {
+    ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SERIAL_PORT_LIST'  })
+    .then(result => {
+        $('#serial-port-select').append(result.map(el => `<option value="${el.path}">${el.friendlyName || el.path}</option>`).join(''));
+    });
+    $("#open-port").on('click', (e) => {
+        ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SERIAL_PORT_OPEN', path: $('#serial-port-select').val()})
+        .then(result => {
+            $('#open-port').text(result? 'Открыт':'Не открыт');
+        });
+    });
+    $('button[kf]').on('click', (e) => {
+        let $button = $(e.target);
+        let $tr = $button.closest('tr');
+        let kf = +$button.attr('kf');
+        let cmd = { "kf": kf };
+        switch (kf){
+            case 0x41: // Установить параметры
+            let p30 = +$button.attr('p30');
+            cmd["p30"] = p30;
+            switch (p30){
+                case 1:
+                    cmd["p2"] = parseInt($tr.find('td[param="2"]').text());
+                    cmd["p3.1"] = parseInt($tr.find('td[param="3.1"]').text());
+                    cmd["p6"] = parseInt($tr.find('td[param="6"]').text());
+                    cmd["p7"] = parseInt($tr.find('td[param="7"]').text());
+                    break;
+                case 2:
+                    cmd["p3.1"] = parseInt($tr.find('td[param="3.1"]').text());
+                    cmd["p11"] = parseInt($tr.find('td[param="11"]').text());
+                    break;
+                case 4:
+                    cmd["p2"] = parseInt($tr.find('td[param="2"]').text());
+                    cmd["p3.1"] = parseInt($tr.find('td[param="3.1"]').text());
+                    cmd["p3.2"] = parseInt($tr.find('td[param="3.2"]').text());
+                    cmd["p12"] = parseInt($tr.find('td[param="12"]').text());
+                    break;
+                case 5:
+                    cmd["p2"] = parseInt($tr.find('td[param="2"]').text());
+                    cmd["p11"] = parseInt($tr.find('td[param="11"]').text());
+                    break;
+                default:
+                    break;
+            }
+            cmd["TEST"] = parseInt($tr.find('td[param="TEST"]').text());
+            cmd["PSOF"] = parseInt($tr.find('td[param="PSOF"]').text());
+            cmd["DB10"] = parseInt($tr.find('td[param="DB10"]').text());
+            ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SEND_COMMAND_TO_DSP', cmd: cmd})
+            .then(result => {
+                let $text = $('#logarea');
+                $text.val(`${$text.val()}\n===> ${result.success? result.content : 'error'}`)
+            });
+            break;
+            case 42: // имитация ответа DSP
+            cmd["p30"] = parseInt($tr.find('td[param="30"]').text());
+            cmd["p4"] = parseInt($tr.find('td[param="4"]').text());
+            cmd["p3.1"] = parseInt($tr.find('td[param="3.1"]').text());
+            ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SEND_COMMAND_FROM_DSP', cmd: cmd})
+            .then(result => {
+                let $text = $('#logarea');
+                $text.val(`${$text.val()}\n===> ${result.success? result.content : 'error'}`)
+            });
+            break;
+        }
+    });
+    $('#clear-log').on('click', () => {
+        $('#logarea').val('');
+    });
+    $('#load-sdp-soft').on('click', () => {
+        let $text = $('#logarea');
+        ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'LOAD_DSP_SOFT' })
+        .then(result => {
+            $text.val(`${$text.val()}\n<=== ${result}`)
+            console.log(result);
+        })
+        .catch(err => {
+            $text.val(`${$text.val()}\n<=== ${err}`)
+            console.log(result);
+        })
+    })
+    $('#touch-panel-screen button').on('click', e => {
+        let $button = $(e.target).closest('button');
+        ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'EVENT_LOOP', key: +$button.attr('code') })
+    });
+});

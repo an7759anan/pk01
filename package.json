@@ -1,8 +1,8 @@
 {
-  "name": "tsp21",
-  "productName": "tsp21",
-  "version": "1.0.0",
-  "description": "My Electron application description",
+  "name": "dsp-tester",
+  "productName": "pk01",
+  "version": "1.1.0",
+  "description": "test app for dsp",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -46,12 +46,15 @@
   },
   "dependencies": {
     "body-parser": "^1.20.0",
+    "crc": "^4.1.1",
     "electron-squirrel-startup": "^1.0.0",
     "express": "^4.17.3",
     "i2c-bus": "^5.2.2",
     "jquery": "^3.6.0",
+    "lodash": "^4.17.21",
     "onoff": "^6.0.3",
-    "pigpio": "^3.3.1",
+    "serialport": "^10.4.0",
+    "slip": "^1.0.2",
     "stormdb": "^0.5.2"
   },
   "devDependencies": {
@@ -60,6 +63,7 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.54",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
-    "electron": "11.1.1"
+    "electron": "11.1.1",
+    "typescript": "^5.0.4"
   }
 }
