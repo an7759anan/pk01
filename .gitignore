@@ -1,4 +1,8 @@
 node_modules/
+out/*
+.webpack/
+*.old
+*.img
+*.bin
 package-lock.json
 db.stormdb
-
