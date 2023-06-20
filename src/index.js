@@ -48,7 +48,7 @@ const createDspTestWindow = () => {
 app.allowRendererProcessReuse=false;
 
 app.on('ready', () => {
-  if (false && os.arch() == 'arm64'){
+  if (os.arch() == 'arm64'){
     mainWindow = createMainWindow();
     mainWindow.once('ready-to-show', () => {
       controller.init(mainWindow);
