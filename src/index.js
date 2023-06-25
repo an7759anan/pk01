@@ -16,7 +16,7 @@ const createMainWindow = () => {
   // Create the browser window.
   let _window = new BrowserWindow({
     alwaysOnTop: true,
-//    fullscreen: true,
+  //  fullscreen: true,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,

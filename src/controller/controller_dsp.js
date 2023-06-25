@@ -73,7 +73,7 @@ const sendStartCommand = (pScriptIdx) => {
     default:
       break;
   }
-  vCmd["TEST"] = 1;
+  vCmd["TEST"] = 0;
   vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
   vCmd["DB10"] = 0;
   vDsp.sendCommand({ ...vCmd });
@@ -96,7 +96,8 @@ const performResponse = (args) => {
         vStep = 0;
         args.dataFromDsp["p2"] = vCmd["p2"];
         dspEmitter.emit('controller-dsp-response', args);
-        vCmd["p2"] += vDm.settings["gen-tran-val"].step;
+        // vCmd["p2"] += vDm.settings["gen-tran-val"].step;
+        vCmd["p2"] += 5;
         if (vCmd["p2"] <= vDm.settings["gen-tran-val"].range.max) {
           vDsp.sendCommand(vCmd);
         } else {

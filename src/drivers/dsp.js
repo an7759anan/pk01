@@ -40,10 +40,17 @@ const dsp_init = (dataModel) => {
         });
 
         serialport.on('data', (chunk) => {
-            console.log(chunk);
+            // serialport.resume();
+            console.log('from serial port2', chunk);
             if (!loadMode){
                 slipDecoder.decode(chunk);
-            }
+            };
+        });
+        serialport.on('error', (err) => {
+            console.log('serialport error', err);
+        });
+        serialport.on('close', (err) => {
+            console.log('serialport close', err);
         });
 
     });
@@ -148,7 +155,7 @@ const sendStopCommand = () => {
 const setPort = (sPort) => {
     serialport = sPort;
     serialport.on('data', (chunk) => {
-        console.log(chunk);
+        console.log('from serial port1', chunk);
         /**
          * - обработать SLIP и CRC - это должен сделать драйвер dsp
          * - эхо на команду - пока распознать и погасить в драйвере dsp
@@ -168,6 +175,7 @@ let slipDecoder = new slip.Decoder({
          * - разобрать по параметрам
          * - отдать контроллеру
          */
+        console.log('from slipDecoder');
         let res = {};
         let viewbuf = new DataView(msg.buffer);
         let idx = 0;

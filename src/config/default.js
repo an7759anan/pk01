@@ -7,6 +7,8 @@ module.exports = {
         path: '/dev/ttyS0', 
         baudRate: 115200, 
         dataBits: 8, 
-        stopBits: 1, parity: 'none'
+        stopBits: 1, 
+        parity: 'none',
+        flowControl: false
     }
 }
