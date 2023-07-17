@@ -44,6 +44,7 @@ const sendStartCommand = (pScriptIdx) => {
       vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
       vCmd["p7"] = vDm.settings["mes-voice2-val"].val;
+      vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
       break;
     case 2: // (2) Измерение отношения Сигнал/Шум
       // vCmd["p2"] = vDm.settings["gen-tran-val"].val;
@@ -51,6 +52,7 @@ const sendStartCommand = (pScriptIdx) => {
       vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
       vCmd["p11"] = vDm.settings["gen-tran-val"].step;
+      vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
       vStep = 0;
       break;
     case 3: // (3) Измерение шума свободного канала
@@ -58,23 +60,25 @@ const sendStartCommand = (pScriptIdx) => {
       // vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       // vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
       // vCmd["p11"] = 5;
+      vCmd["PSOF"] = 1;
       break;
     case 4: // (4) Измерение частотной характеристики
       vCmd["p2"] = vDm.settings["gen-tran-val"].val + vDm.settings["gen-zero-val"].val;
       vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       vCmd["p3.2"] = 3600;
       vCmd["p12"] = 100;
+      vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
       vNominalValue = null;
       break;
     case 5: // (5) Измерение амплитудной характеристики
       vCmd["p2"] = vDm.settings["gen-tran-val"].val;
       vCmd["p11"] = 5;
+      vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
       break;
     default:
       break;
   }
   vCmd["TEST"] = 0;
-  vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
   vCmd["DB10"] = 0;
   vDsp.sendCommand({ ...vCmd });
   return { ...vCmd };
