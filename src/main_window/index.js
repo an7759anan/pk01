@@ -33,7 +33,7 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
         if (message.value && message.value == 'DATA_TO_SERIALPORT'){
             let $text = $('#logarea');
             let dataFromDspText = `===> data: ${JSON.stringify(message.data)}`;
-            $text.val(`${$text.val()}\n${dataFromDspText}`)
+            $text.val(`${dataFromDspText}\n${$text.val()}`)
         }
         if (message.value && message.value == 'DATA_FROM_SERIALPORT'){
             let $text = $('#logarea');
@@ -43,7 +43,7 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                 // dataFromDspText = `Вх.сиг: ${d["p8"]}; Шум: ${d["p9"]}; Ур.вх.сиг.: ${(20*Math.log10(d["p8"]/0.775)).toFixed(2)}; Отношение: ${(20*Math.log10(d["p8"]/d["p9"])).toFixed(2)}`
                 dataFromDspText = `Вх.сиг: ${d["p8"]}; Шум: ${d["p9"]}; Ур.вх.сиг.: ${(20*Math.log10(d["p8"]/10158)).toFixed(2)}; Отношение: ${(20*Math.log10(d["p8"]/d["p9"])).toFixed(2)}`
             }
-            $text.val(`${$text.val()}\n${dataFromDspText}`)
+            $text.val(`${dataFromDspText}\n${$text.val()}`)
         }
     } else {
         if (message.show != undefined) $('.screens').hide();
@@ -232,7 +232,7 @@ addEventListener('load', (event) => {
             ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SEND_COMMAND_TO_DSP', cmd: cmd})
             .then(result => {
                 let $text = $('#logarea');
-                $text.val(`${$text.val()}\n===> ${result.success? result.content : 'error'}`)
+                $text.val(`===> ${result.success? result.content : 'error'}\n${$text.val()}`)
             });
             break;
             case 42: // имитация ответа DSP
@@ -242,7 +242,7 @@ addEventListener('load', (event) => {
             ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'SEND_COMMAND_FROM_DSP', cmd: cmd})
             .then(result => {
                 let $text = $('#logarea');
-                $text.val(`${$text.val()}\n===> ${result.success? result.content : 'error'}`)
+                $text.val(`===> ${result.success? result.content : 'error'}\n${$text.val()}`)
             });
             break;
         }
@@ -254,11 +254,11 @@ addEventListener('load', (event) => {
         let $text = $('#logarea');
         ipcRenderer.invoke('VIEW_TO_CONTROLLER_MESSAGE', { command: 'LOAD_DSP_SOFT' })
         .then(result => {
-            $text.val(`${$text.val()}\n<=== ${result}`)
+            $text.val(`<=== ${result}\n${$text.val()}`)
             console.log(result);
         })
         .catch(err => {
-            $text.val(`${$text.val()}\n<=== ${err}`)
+            $text.val(`<=== ${err}\n${$text.val()}`)
             console.log(result);
         })
     })
