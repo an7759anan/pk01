@@ -224,8 +224,8 @@ const loadDspSoft = () => {
 }
 
 const dsp_stop = () => {
-    if (serialport){
-        
+    if (serialport && serialport.isOpen){
+        serialport.close();
     }
 }
 
