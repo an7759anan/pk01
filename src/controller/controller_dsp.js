@@ -71,7 +71,7 @@ const sendStartCommand = (pScriptIdx) => {
       vNominalValue = null;
       break;
     case 5: // (5) Измерение амплитудной характеристики
-      vCmd["p2"] = vDm.settings["gen-tran-val"].val;
+      vCmd["p2"] = vDm.settings["gen-tran-val"].val + vDm.settings["gen-zero-val"].val;
       vCmd["p11"] = 5;
       vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
       break;

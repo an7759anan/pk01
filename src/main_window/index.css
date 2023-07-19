@@ -222,8 +222,8 @@
 
 #TONE_SIGNAL_MEASUREMENT {
     display: grid;
-    grid-template-columns: 3fr 11fr 3fr 3fr 3fr;
-    grid-template-rows: 5fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 3fr 3fr 3fr 3fr 3fr 3fr;
+    grid-template-rows: 3fr 1fr 1fr 1fr 2fr;
     max-height: 480px;
     font-size: 34px;
 }
@@ -238,6 +238,11 @@
     grid-row: 2;
 }
 
+.tsm-freq-unt {
+    grid-column: 5;
+    grid-row: 2;
+}
+
 .tsm-level-lbl {
     grid-column: 2;
     grid-row: 4;
@@ -245,6 +250,11 @@
 
 .tsm-level-val {
     grid-column: 4;
+    grid-row: 4;
+}
+
+.tsm-level-unt {
+    grid-column: 5;
     grid-row: 4;
 }
 
