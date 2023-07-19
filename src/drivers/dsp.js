@@ -223,6 +223,12 @@ const loadDspSoft = () => {
 
 }
 
+const dsp_stop = () => {
+    if (serialport){
+        
+    }
+}
+
 module.exports = {
     "dsp_init": dsp_init,
     "dsp_init_test": dsp_init_test,
@@ -230,5 +236,6 @@ module.exports = {
     "sendCommand": sendCommand,
     "setPort": setPort,
     "dspEmitter": dspEmitter,
-    "sendStopCommand": sendStopCommand
+    "sendStopCommand": sendStopCommand,
+    "dsp_stop": dsp_stop
 }
