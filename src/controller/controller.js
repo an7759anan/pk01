@@ -89,6 +89,7 @@ let mode_measurement_value;
 const eventLoop = (key) => {
     if (key == KEY_STOP) {
         if (++stop_clicks > 1) {
+            dsp.dsp_stop();
             db.get("variables.mode_measurement_index").set(mode_measurement_index);
             db.get("variables.settings_prop").set(settings_prop);
             db.get("model_settings").set(dm.settings);
