@@ -129,8 +129,8 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                         let lastValue = data[dataLength - 1];
                         switch(message.value){
                             case 'TONE_SIGNAL_MEASUREMENT':
-                                $('#TONE_SIGNAL_MEASUREMENT .tsm-freq-val span').text(lastValue.x);
-                                $('#TONE_SIGNAL_MEASUREMENT .tsm-level-val span').text(lastValue.y);
+                                $('#TONE_SIGNAL_MEASUREMENT .tsm-freq-val').text(lastValue.x);
+                                $('#TONE_SIGNAL_MEASUREMENT .tsm-level-val').text(lastValue.y);
                             break;
                             case 'FREE_CHANNEL_NOISE_MEASUREMENT':
                                 $('#FREE_CHANNEL_NOISE_MEASUREMENT .fcn-level-val span').text(lastValue.x.toLocaleString('ru',{maximumFractionDigits: 1}));
