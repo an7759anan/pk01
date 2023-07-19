@@ -53,7 +53,7 @@ const addDataFromDsp = (script, data) => {
             if (dataModel.data.length >= DATA_MAX_LENGTH){
                 dataModel.data.shift();
             }
-            dataModel.data.push({ "x": x, "y": y });
+            dataModel.data.push({ "genx": settings["gen-freq-val"].val, "x": x, "geny": settings["gen-tran-val"].val, "y": y });
             return true;
             break;
         case 'FREE_CHANNEL_NOISE_MEASUREMENT':

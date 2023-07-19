@@ -233,6 +233,11 @@
     grid-row: 2;
 }
 
+.tsm-freq-gen {
+    grid-column: 3;
+    grid-row: 2;
+}
+
 .tsm-freq-val {
     grid-column: 4;
     grid-row: 2;
@@ -245,6 +250,11 @@
 
 .tsm-level-lbl {
     grid-column: 2;
+    grid-row: 4;
+}
+
+.tsm-level-gen {
+    grid-column: 3;
     grid-row: 4;
 }
 
