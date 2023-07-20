@@ -277,8 +277,49 @@ const eventLoop = (key) => {
          * Состояние для (1) Измерение сигнала ТЧ вручную и (3) Измерение шума свободного канала
          */
         case STATE_MEASUREMENT_GRID:
+            let prop;
             mode_measurement_value = dm.mode_measurement_values_table[mode_measurement_index];
             switch (key) {
+                case KEY_UP:
+                    prop = dm.settings["gen-tran-val"];
+                    prop.val = Math.min(prop.range.max, prop.val + prop.step);
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        show: true,
+                        screen: 'DSP_TEST_SCREEN',
+                        value: 'DATA_TO_SERIALPORT',
+                        data: controllerDsp.sendStartCommand(mode_measurement_index)
+                    });
+                    break;
+                case KEY_DOWN:
+                    prop = dm.settings["gen-tran-val"];
+                    prop.val = Math.max(prop.range.min, prop.val - prop.step);
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        show: true,
+                        screen: 'DSP_TEST_SCREEN',
+                        value: 'DATA_TO_SERIALPORT',
+                        data: controllerDsp.sendStartCommand(mode_measurement_index)
+                    });
+                    break;
+                case KEY_LEFT:
+                    prop = dm.settings["gen-freq-val"];
+                    prop.val = Math.max(prop.range.min, prop2.val - prop2.step);
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        show: true,
+                        screen: 'DSP_TEST_SCREEN',
+                        value: 'DATA_TO_SERIALPORT',
+                        data: controllerDsp.sendStartCommand(mode_measurement_index)
+                    });
+                    break;
+                case KEY_RIGHT:
+                    prop = dm.settings["gen-freq-val"];
+                    prop.val = Math.min(prop.range.max, prop.val + prop.step);
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                        show: true,
+                        screen: 'DSP_TEST_SCREEN',
+                        value: 'DATA_TO_SERIALPORT',
+                        data: controllerDsp.sendStartCommand(mode_measurement_index)
+                    });
+                    break;
                 case KEY_MEASURE:
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: mode_measurement_value });
                     state = STATE_MODE_DIALOG;
