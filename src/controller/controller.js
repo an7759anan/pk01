@@ -326,7 +326,7 @@ const eventLoop = (key) => {
                     break;
                 case KEY_SUN:
                     settings_prop = "gen-freq-val";
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', show: true, value: settings_prop });
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', show: true, value: settings_prop, data: dm.settings });
                     state = STATE_SETTINGS;
                     break;
                 case KEY_START:
