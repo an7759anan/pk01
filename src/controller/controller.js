@@ -302,7 +302,7 @@ const eventLoop = (key) => {
                     break;
                 case KEY_LEFT:
                     prop = dm.settings["gen-freq-val"];
-                    prop.val = Math.max(prop.range.min, prop2.val - prop2.step);
+                    prop.val = Math.max(prop.range.min, prop.val - prop.step);
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
