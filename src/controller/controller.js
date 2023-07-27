@@ -88,25 +88,25 @@ let mode_measurement_value;
 
 const eventLoop = (key) => {
     if (key == KEY_STOP) {
-        if (++stop_clicks > 1) {
-            dsp.dsp_stop();
-            db.get("variables.mode_measurement_index").set(mode_measurement_index);
-            db.get("variables.settings_prop").set(settings_prop);
-            db.get("model_settings").set(dm.settings);
-            db.save();
-            view.close();
-        }
+        // if (++stop_clicks > 1) {
+        //     dsp.dsp_stop();
+        //     db.get("variables.mode_measurement_index").set(mode_measurement_index);
+        //     db.get("variables.settings_prop").set(settings_prop);
+        //     db.get("model_settings").set(dm.settings);
+        //     db.save();
+        //     view.close();
+        // }
         controllerDsp.sendStopCommand();
     } else {
         stop_clicks = 0;
     }
     if (key == KEY_SUN) {
         if (++sun_clicks > 1) {
-            if (view.webContents.isDevToolsOpened()) {
-                view.webContents.closeDevTools();
-            } else {
-                view.webContents.openDevTools();
-            }
+            // if (view.webContents.isDevToolsOpened()) {
+            //     view.webContents.closeDevTools();
+            // } else {
+            //     view.webContents.openDevTools();
+            // }
             sun_clicks = 0;
         }
     } else {
