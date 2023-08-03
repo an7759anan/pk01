@@ -43,7 +43,6 @@ const dsp_init = (dataModel) => {
 
         serialport.on('data', (msg) => {
         // parser.on('data', (msg) => {
-                // serialport.resume();
             console.log('from serial port2', msg);
             if (!loadMode) {
                 slipDecoder.decode(msg);
@@ -51,6 +50,7 @@ const dsp_init = (dataModel) => {
                 // dspEmitter.emit('dsp-response', { dataFromSerialPort: msg, dataFromDsp: processResponce(msg) });
         
             };
+            // serialport.resume();
         });
         serialport.on('error', (err) => {
             console.log('serialport error', err);
@@ -58,7 +58,7 @@ const dsp_init = (dataModel) => {
         serialport.on('close', (err) => {
             console.log('serialport close', err);
         });
-
+        setInterval(() => serialport.resume(), 1000);
     });
 }
 
