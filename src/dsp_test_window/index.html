@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>DSP Test Window</title>
-    <link rel="stylesheet" href="index.css">
-    <script>window.$ = window.jQuery = require('jquery')</script>
-  </head>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Debugg Window</title>
+  <link rel="stylesheet" href="index.css">
+  <script>window.$ = window.jQuery = require('jquery')</script>
+</head>
+
 <body>
-  <div id="common-container">
+  <div id="dsp-test-screen" style="display: none;">
     <select id="serial-port-select"></select>
     <button id="open-port">Закрыт</button>
     <button id="load-sdp-soft">Загрузить ПО SDP</button>
-    <table>
+    <table style="display: none;"> 
       <caption>Команды установки режимов</caption>
       <thead>
         <tr>
@@ -52,7 +54,7 @@
           <td rowspan="4"></td>
         </tr>
         <tr>
-          <td><button  kf="0x41" p30="2">отношение шум/сигнал</button></td>
+          <td><button kf="0x41" p30="2">отношение шум/сигнал</button></td>
           <td param="2"></td>
           <td param="3.1" contenteditable="true"></td>
           <td param="3.2"></td>
@@ -64,9 +66,9 @@
           <td param="PSOF" contenteditable="true"></td>
           <td param="DB10" contenteditable="true"></td>
         </tr>
-        
+
         <tr>
-          <td><button  kf="0x41" p30="4">частотная характеристика</button></td>
+          <td><button kf="0x41" p30="4">частотная характеристика</button></td>
           <td param="2" contenteditable="true"></td>
           <td param="3.1" contenteditable="true"></td>
           <td param="3.2" contenteditable="true"></td>
@@ -79,7 +81,7 @@
           <td param="DB10" contenteditable="true"></td>
         </tr>
         <tr>
-          <td><button  kf="0x41" p30="5">амплитудная характеристика</button></td>
+          <td><button kf="0x41" p30="5">амплитудная характеристика</button></td>
           <td param="2" contenteditable="true"></td>
           <td param="3.1"></td>
           <td param="3.2"></td>
@@ -93,12 +95,31 @@
         </tr>
       </tbody>
     </table>
-    <div class="screens" id="measurement-screen" style="display: none;">
-      <span style="text-decoration: underline">Маска</span><span> / </span><span>Таблица</span><span> / </span><span>Данные</span>
-      <canvas width="800" height="480"></canvas>
-    </div>
-    <textarea readonly id="logarea" rows="10" cols="45"></textarea>
+    <table style="display: none;">
+      <caption>Имитация ответов DSP</caption>
+      <thead>
+        <tr>
+          <th>КФ</th>
+          <td></td>
+          <th>сценарий(p30)</th>
+          <th>ур.вх.сигн*10, дБ<br>int_16</th>
+          <th>част.вх., Гц<br>uint_16</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>M1 0x42</td>
+          <td><button kf="0x42">ответ</button></td>
+          <td param="30" contenteditable="true"></td>
+          <td param="4" contenteditable="true"></td>
+          <td param="3.1" contenteditable="true"></td>
+        </tr>
+      </tbody>
+    </table>
+    <textarea readonly id="logarea" rows="25" cols="45" style="width: 100%"></textarea>
     <button id="clear-log">Очистить</button>
- </div>
+  </div>
+
 </body>
+
 </html>
