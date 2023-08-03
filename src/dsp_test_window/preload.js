@@ -1,5 +1,4 @@
 const { ipcRenderer } = require('electron');
-const { drawInit, drawData, drawPicture } = require('./drawings');
 
 ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
     if (message.screen == 'DSP_TEST_SCREEN') {

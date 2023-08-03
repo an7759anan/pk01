@@ -1,5 +1,5 @@
 const os = require('os');
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, screen, Menu, ipcMain } = require('electron');
 const controller = require ('./controller/controller');
 const webserver = require('./webserver/webserver');
 
@@ -12,11 +12,13 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
-const createMainWindow = () => {
+const createMainWindow = (display) => {
   // Create the browser window.
   let _window = new BrowserWindow({
     alwaysOnTop: true,
-  //  fullscreen: true,
+   fullscreen: true,
+   x: display.bounds.x,
+   y: display.bounds.y,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
@@ -29,11 +31,13 @@ const createMainWindow = () => {
   return _window;
 };
 
-const createDspTestWindow = () => {
+const createDspTestWindow = (display) => {
   let _window = new BrowserWindow({
 //    alwaysOnTop: true,
     fullscreen: false,
-    titleBarStyle: 'hidden',
+    x: display.bounds.x,
+    y: display.bounds.y,
+     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -49,12 +53,15 @@ app.allowRendererProcessReuse=false;
 
 app.on('ready', () => {
   if (os.arch() == 'arm64'){
-    mainWindow = createMainWindow();
-    dspTestWindow = createDspTestWindow();
+    const displays = screen.getAllDisplays();
+    const mainDisplay = displays.find(d => d.size.width === 800 && d.size.height === 480);
+    const testDisplay = displays.find(d => d.size.width !== 800 || d.size.height !== 480);
+    mainWindow = createMainWindow(mainDisplay);
+    if (testDisplay) dspTestWindow = createDspTestWindow(testDisplay);
     mainWindow.once('ready-to-show', () => {
-      dspTestWindow.once('ready-to-show', () => {
+      // dspTestWindow.once('ready-to-show', () => {
         controller.init(mainWindow, dspTestWindow);
-      });
+      // });
     })
   } else {
 //    dspTestWindow = createDspTestWindow();
