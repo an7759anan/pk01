@@ -293,7 +293,7 @@ const eventLoop = (key) => {
                 case KEY_DOWN:
                     prop = dm.settings["gen-tran-val"];
                     prop.val = Math.max(prop.range.min, prop.val - prop.step);
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    viewTest.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
                         value: 'DATA_TO_SERIALPORT',
@@ -303,7 +303,7 @@ const eventLoop = (key) => {
                 case KEY_LEFT:
                     prop = dm.settings["gen-freq-val"];
                     prop.val = Math.max(prop.range.min, prop.val - prop.step);
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    viewTest.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
                         value: 'DATA_TO_SERIALPORT',
@@ -313,7 +313,7 @@ const eventLoop = (key) => {
                 case KEY_RIGHT:
                     prop = dm.settings["gen-freq-val"];
                     prop.val = Math.min(prop.range.max, prop.val + prop.step);
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    viewTest.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
                         value: 'DATA_TO_SERIALPORT',
@@ -330,7 +330,7 @@ const eventLoop = (key) => {
                     state = STATE_SETTINGS;
                     break;
                 case KEY_START:
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    viewTest.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
                         value: 'DATA_TO_SERIALPORT',
@@ -367,7 +367,7 @@ const eventLoop = (key) => {
                         data: dm.dataModels[mode_measurement_value],
                         action: 'draw-grid'
                     });
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+                    viewTest.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
                         show: true,
                         screen: 'DSP_TEST_SCREEN',
                         value: 'DATA_TO_SERIALPORT',
@@ -507,9 +507,10 @@ const initSettings = () => {
     }
 }
 
-const init = (mainWindow) => {
+const init = (mainWindow, dspTestWindow) => {
     controllerDsp.controller_dsp_init(dsp, dm);
     view = mainWindow;
+    viewTest = dspTestWindow;
     mode = MODE_SPLASH_SCREEN;
     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SPLASH_SCREEN', show: true });
     setTimeout(() => {
@@ -670,7 +671,7 @@ ipcMain.handle('VIEW_TO_CONTROLLER_MESSAGE', async (event, args) => {
 const initTest = (dspTestWindow) => {
     //    viewTest = dspTestWindow;
     view = dspTestWindow;
-    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'DSP_TEST_SCREEN', show: true });
+    viewTest.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'DSP_TEST_SCREEN', show: true });
     initSettings();
     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MODE_DIALOG', show: true, value: dm.mode_measurement_values_table[mode_measurement_index] });
     state = STATE_MODE_DIALOG;
@@ -705,7 +706,7 @@ const subscribeControllerDspEvents = () => {
          * - эхо на команду - пока распознать и погасить в драйвере dsp
          * - данные измерения. Если совпадает сценарий, то а). добавить данные в модель, б). послать на отрисовку 
          */
-        view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
+        viewTest.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', {
             show: true,
             screen: 'DSP_TEST_SCREEN',
             value: 'DATA_FROM_SERIALPORT',
