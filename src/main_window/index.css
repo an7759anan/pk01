@@ -1,6 +1,6 @@
 #common-container {
-    /* max-height: 480px; */
-    max-width: 900px;
+    max-height: 560px;
+    max-width: 952px;
 }
 
 .gray-area{
@@ -20,8 +20,8 @@
     height: 100%;
     position: absolute;
     z-index: 1010;
-    top: 3%;
-    left: -7%;
+    /* top: 3%; */
+    /* left: -7%; */
 }
 
 .dialog-content {
@@ -29,7 +29,7 @@
     opacity: 100%;
     position: relative;
     top: 30%;
-    left: 8%;
+    left: 3%;
     width: 70%;
     height: 10%;
 }
