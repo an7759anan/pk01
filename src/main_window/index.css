@@ -60,9 +60,9 @@
     height: 10%;
 }
 
-#measurement-table {
-    max-height: 480px;
-    max-width: 900px;
+#measurement-table, #measurement-screen, .normatives {
+    max-height: 532px;
+    max-width: 945px;
 }
 
 .bad-value {
