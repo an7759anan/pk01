@@ -104,8 +104,18 @@ const addDataFromDsp = (script, data) => {
                 x = data["pp2"];
                 y = data["pp2"] - data["pp4"];
                 dataModel.data.push({ "x": x, "y": y });
+
             }
             break;
+    }
+}
+
+const nominalizeAmplitudeResponseMarks = (dataModel) => {
+    let nominalMark = dataModel.buffer.find(mark => mark.x === -10);
+    if (nominalMark && nominalMark.y) {
+        for (let mark of dataModel.buffer) {
+            mark.y -= nominalMark;
+        }
     }
 }
 
