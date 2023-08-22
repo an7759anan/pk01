@@ -114,7 +114,7 @@ const nominalizeAmplitudeResponseMarks = (dataModel) => {
     let nominalMark = dataModel.data.find(mark => mark.x === -10);
     if (nominalMark && nominalMark.y) {
         for (let mark of dataModel.data) {
-            mark.y -= nominalMark;
+            mark.y -= nominalMark.y;
         }
     }
 }
@@ -123,7 +123,7 @@ const nominalizeFrequencyResponseMarks = (dataModel) => {
     let nominalMark = dataModel.buffer.find(mark => mark.x === 1020);
     if (nominalMark && nominalMark.y) {
         for (let mark of dataModel.buffer) {
-            mark.y -= nominalMark;
+            mark.y -= nominalMark.y;
         }
     }
 }
