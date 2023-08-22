@@ -111,9 +111,9 @@ const addDataFromDsp = (script, data) => {
 }
 
 const nominalizeAmplitudeResponseMarks = (dataModel) => {
-    let nominalMark = dataModel.buffer.find(mark => mark.x === -10);
+    let nominalMark = dataModel.data.find(mark => mark.x === -10);
     if (nominalMark && nominalMark.y) {
-        for (let mark of dataModel.buffer) {
+        for (let mark of dataModel.data) {
             mark.y -= nominalMark;
         }
     }
