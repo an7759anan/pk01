@@ -104,7 +104,7 @@ const addDataFromDsp = (script, data) => {
                 x = data["pp2"];
                 y = data["pp2"] - data["pp4"];
                 dataModel.data.push({ "x": x, "y": y });
-
+                nominalizeAmplitudeResponseMarks(dataModel);
             }
             break;
     }
