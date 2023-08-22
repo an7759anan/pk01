@@ -10,6 +10,9 @@ let vDm;
 let vCmd = null;
 let vStep = 0;
 let vNominalValue = null;
+const cGenTranValStep = 5;  // Шаг величины выходного сигнала генератора
+const cGenTranVal = -55;    // Начальная величина выходного сигнала генератора для измерения Амплитудной характеристики
+const cValDelta = 0.2;      // Отклонение входного сигнала для определения выходного сигнала генератора
 
 // vCmd["p2"] = vDm.settings["gen-tran-val"].val;   уровень выходного сигнала {min: -55, max: 3}, step: 1
 // vCmd["p3.1"] = vDm.settings["gen-freq-val"].val; частота генератора
@@ -59,7 +62,7 @@ const sendStartCommand = (pScriptIdx) => {
       // vCmd["p2"] = vDm.settings["gen-tran-val"].val;
       // vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       // vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
-      // vCmd["p11"] = 5;
+      // vCmd["p11"] = cGenTranValStep;
       vCmd["PSOF"] = 1;
       break;
     case 4: // (4) Измерение частотной характеристики
@@ -71,8 +74,9 @@ const sendStartCommand = (pScriptIdx) => {
       vNominalValue = null;
       break;
     case 5: // (5) Измерение амплитудной характеристики
-      vCmd["p2"] = vDm.settings["gen-tran-val"].val + vDm.settings["gen-zero-val"].val;
-      vCmd["p11"] = 5;
+      // vCmd["p2"] = vDm.settings["gen-tran-val"].val + vDm.settings["gen-zero-val"].val;
+      vCmd["p2"] = cGenTranVal;
+      vCmd["p11"] = cGenTranValStep;
       vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
       break;
     default:
@@ -89,7 +93,10 @@ const sendStopCommand = () => {
   vCmd = null;
   vNominalValue = null;
 }
-
+/** Первичная обработка ответа DSP, компенсация переходных процессов...
+ * 
+ * @param {*} args 
+ */
 const performResponse = (args) => {
   switch (vCmd?.p30) {
     case 1: // (1) Измерение сигнала ТЧ вручную
@@ -101,7 +108,7 @@ const performResponse = (args) => {
         args.dataFromDsp["p2"] = vCmd["p2"];
         dspEmitter.emit('controller-dsp-response', args);
         // vCmd["p2"] += vDm.settings["gen-tran-val"].step;
-        vCmd["p2"] += 5;
+        vCmd["p2"] += cGenTranValStep;
         if (vCmd["p2"] <= vDm.settings["gen-tran-val"].range.max) {
           vDsp.sendCommand(vCmd);
         } else {
@@ -122,7 +129,17 @@ const performResponse = (args) => {
       dspEmitter.emit('controller-dsp-response', args);
       break;
     case 5: // (5) Измерение амплитудной характеристики
-      dspEmitter.emit('controller-dsp-response', args);
+      let _val1 = args.dataFromDsp["p4"]/10;
+      args.dataFromDsp["pp4"] = _val1;
+      for (let _val0 = cGenTranVal; _val0 += cGenTranValStep; _val0 < 3){
+        if (_val0 - cValDelta < _val1 && _val1 < _val0 - cValDelta){
+          args.dataFromDsp["pp2"] = _val0;
+          break;
+        }
+      }
+      if (args.dataFromDsp["pp2"] != undefined){
+        dspEmitter.emit('controller-dsp-response', args);
+      }
       break;
     default:
       break;

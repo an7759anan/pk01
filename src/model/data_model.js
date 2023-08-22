@@ -100,8 +100,8 @@ const addDataFromDsp = (script, data) => {
             return false;
             break;
         case 'AMPLITUDE_RESPONSE_MEASUREMENT':
-            x = data["p3.1"];
-            y = settings["gen-tran-val"].val - data.p4/10;
+            x = data["pp2"];
+            y = data["pp4"];
             dataModel.data.push({ "x": x, "y": y });
             break;
     }
