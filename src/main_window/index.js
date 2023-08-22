@@ -64,6 +64,7 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                             if(message.data){
                                 switch (message.action) {
                                     case 'draw-data':
+                                        drawPicture(message.data);
                                         drawData(message.data);
                                     break;
                                     case 'draw-grid':
