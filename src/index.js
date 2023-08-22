@@ -27,7 +27,7 @@ const createMainWindow = (display) => {
     }
   });
   _window.loadFile(path.join(__dirname, '/main_window/index.html'));
-  _window.webContents.openDevTools();
+  // _window.webContents.openDevTools();
   return _window;
 };
 
