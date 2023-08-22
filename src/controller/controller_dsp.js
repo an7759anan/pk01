@@ -137,9 +137,9 @@ const performResponse = (args) => {
           break;
         }
       }
-      if (args.dataFromDsp["pp2"] != undefined){
+      // if (args.dataFromDsp["pp2"] != undefined){
         dspEmitter.emit('controller-dsp-response', args);
-      }
+      // }
       break;
     default:
       break;
