@@ -131,7 +131,7 @@ const performResponse = (args) => {
     case 5: // (5) Измерение амплитудной характеристики
       let _val1 = args.dataFromDsp["p4"]/10;
       args.dataFromDsp["pp4"] = _val1;
-      for (let _val0 = cGenTranVal; _val0 += cGenTranValStep; _val0 < 3){
+      for (let _val0 = cGenTranVal; _val0 < 3; _val0 += cGenTranValStep){
         if (_val0 - cValDelta < _val1 && _val1 < _val0 + cValDelta){
           args.dataFromDsp["pp2"] = _val0;
           break;
