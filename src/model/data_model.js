@@ -101,7 +101,7 @@ const addDataFromDsp = (script, data) => {
             break;
         case 'AMPLITUDE_RESPONSE_MEASUREMENT':
             x = data["pp2"];
-            y = data["pp4"];
+            y = data["pp4"] - data["pp2"];
             dataModel.data.push({ "x": x, "y": y });
             break;
     }
