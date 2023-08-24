@@ -130,6 +130,10 @@ const eventLoop = (key) => {
         case STATE_SETTINGS:
             switch (key) {
                 case KEY_SUN:
+                    db.get("variables.mode_measurement_index").set(mode_measurement_index);
+                    db.get("variables.settings_prop").set(settings_prop);
+                    db.get("model_settings").set(dm.settings);
+                    db.save();
                     if (['TONE_SIGNAL_MEASUREMENT', 'FREE_CHANNEL_NOISE_MEASUREMENT'].includes(dm.mode_measurement_values_table[mode_measurement_index])) {
                         view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'MEASUREMENT_GRID', show: true, value: dm.mode_measurement_values_table[mode_measurement_index] });
                         state = STATE_MEASUREMENT_GRID;
