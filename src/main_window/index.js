@@ -2,11 +2,11 @@ const { ipcRenderer } = require('electron');
 const { drawInit, drawData, drawPicture } = require('./drawings');
 
 const MODE_TITLES = {
-    'TONE_SIGNAL_MEASUREMENT': 'ТЧ',
-    'SIGNAL_TO_NOISE_MEASUREMENT': 'Сигнал/Шум',
-    'FREE_CHANNEL_NOISE_MEASUREMENT': 'Шум',
-    'FREQUENCY_RESPONSE_MEASUREMENT': 'Частотная хар-ка',
-    'AMPLITUDE_RESPONSE_MEASUREMENT': 'Амплитудная хар-ка'
+    'TONE_SIGNAL_MEASUREMENT': 'Сигнал ТЧ вручную',
+    'SIGNAL_TO_NOISE_MEASUREMENT': 'Отношение Сигнал/Шум',
+    'FREE_CHANNEL_NOISE_MEASUREMENT': 'Шум свободного канала',
+    'FREQUENCY_RESPONSE_MEASUREMENT': 'Частотная характеристика',
+    'AMPLITUDE_RESPONSE_MEASUREMENT': 'Амплитудная характеристика'
 }
 
 setTimeout(()=>{
