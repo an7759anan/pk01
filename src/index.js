@@ -24,10 +24,18 @@ const createMainWindow = (display) => {
       nodeIntegration: true,
       contextIsolation: false,
       preload: path.join(__dirname, '/main_window/index.js'),
+      // zoomFactor: 1.2
     }
   });
   _window.loadFile(path.join(__dirname, '/main_window/index.html'));
-  // _window.webContents.openDevTools();
+  _window.webContents.openDevTools();
+  // console.log('======>',_window.webContents.getZoomFactor(),_window.webContents.getZoomLevel())
+  // _window.webContents.setZoomFactor(0.5);
+  // _window.webContents.setZoomLevel(1);
+  // _window.webContents.getZoomFactor();
+  // _window.webContents.zoomFactor = 2.0;
+  // _window.webContents.setVisualZoomLevelLimits(1, 5);
+
   return _window;
 };
 
@@ -46,6 +54,8 @@ const createDspTestWindow = (display) => {
   });
   _window.loadFile(path.join(__dirname, '/dsp_test_window/index.html'));
   // _window.webContents.openDevTools();
+  // _window.webContents.setZoomFactor(1.0);
+  // _window.webContents.setVisualZoomLevelLimits(1, 5);
   return _window;
 };
 
