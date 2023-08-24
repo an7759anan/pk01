@@ -1,6 +1,6 @@
 const os = require('os');
 const { app, BrowserWindow, screen, Menu, ipcMain } = require('electron');
-const controller = require ('./controller/controller');
+const controller = require('./controller/controller');
 const webserver = require('./webserver/webserver');
 
 const path = require('path');
@@ -16,9 +16,9 @@ const createMainWindow = (display) => {
   // Create the browser window.
   let _window = new BrowserWindow({
     alwaysOnTop: true,
-   fullscreen: true,
-   x: display.bounds.x,
-   y: display.bounds.y,
+    fullscreen: true,
+    x: display.bounds.x,
+    y: display.bounds.y,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
@@ -41,15 +41,15 @@ const createMainWindow = (display) => {
 
 const createDspTestWindow = (display) => {
   let _window = new BrowserWindow({
-//    alwaysOnTop: true,
+    //    alwaysOnTop: true,
     fullscreen: false,
     x: display.bounds.x,
     y: display.bounds.y,
-     titleBarStyle: 'hidden',
+    titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      preload: path.join(__dirname, '/dsp_test_window/preload.js'),      
+      preload: path.join(__dirname, '/dsp_test_window/preload.js'),
     }
   });
   _window.loadFile(path.join(__dirname, '/dsp_test_window/index.html'));
@@ -59,10 +59,10 @@ const createDspTestWindow = (display) => {
   return _window;
 };
 
-app.allowRendererProcessReuse=false;
+app.allowRendererProcessReuse = false;
 
 app.on('ready', () => {
-  if (os.arch() == 'arm64'){
+  if (os.arch() == 'arm64') {
     const displays = screen.getAllDisplays();
     const mainDisplay = displays.find(d => d.size.width === 800 && d.size.height === 480);
     const testDisplay = displays.find(d => d.size.width !== 800 || d.size.height !== 480);
@@ -70,11 +70,13 @@ app.on('ready', () => {
     if (testDisplay) dspTestWindow = createDspTestWindow(testDisplay);
     mainWindow.once('ready-to-show', () => {
       // dspTestWindow.once('ready-to-show', () => {
-        controller.init(mainWindow, dspTestWindow);
+      console.log('======>', mainWindow.webContents.getZoomFactor(), mainWindow.webContents.getZoomLevel())
+      mainWindow.webContents.setZoomFactor(0.8333333334);
+      controller.init(mainWindow, dspTestWindow);
       // });
     })
   } else {
-//    dspTestWindow = createDspTestWindow();
+    //    dspTestWindow = createDspTestWindow();
     dspTestWindow = createMainWindow();
     dspTestWindow.once('ready-to-show', () => {
       controller.initTest(dspTestWindow);
@@ -93,9 +95,9 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    if (os.arch() == 'arm64'){
+    if (os.arch() == 'arm64') {
       createMainWindow();
-        controller.init();
+      controller.init();
     } else {
       createDspTestWindow();
     }
