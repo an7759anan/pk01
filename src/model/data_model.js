@@ -102,10 +102,10 @@ const addDataFromDsp = (script, data) => {
         case 'AMPLITUDE_RESPONSE_MEASUREMENT':
             if (data["pp2"] != undefined && data["pp4"] != undefined) {
                 x = data["pp2"];
-                let _dublicate = dataModel.data.find(mark => mark.x === x);
-                if (_dublicate) _dublicate.isDirty = true;
+                let _dublicates = dataModel.data.filter(mark => mark.x === x);
+                _dublicates.forEach(dub => dub.isDirty = true);
                 y = data["pp2"] - data["pp4"];
-                dataModel.data.push({ "x": x, "y": y });
+                dataModel.data.push({ "x": x, "y": y, "yy": y });
                 nominalizeAmplitudeResponseMarks(dataModel);
             }
             break;
@@ -113,10 +113,10 @@ const addDataFromDsp = (script, data) => {
 }
 
 const nominalizeAmplitudeResponseMarks = (dataModel) => {
-    let nominalMark = dataModel.data.find(mark => mark.x === -10);
-    if (nominalMark && nominalMark.y) {
+    let nominalMark = dataModel.data.find(mark => mark.x === -10 && !mark.isDirty);
+    if (nominalMark) {
         for (let mark of dataModel.data) {
-            mark.y -= nominalMark.y;
+            mark.y = mark.yy - nominalMark.yy;
         }
     }
 }
