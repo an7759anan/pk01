@@ -57,6 +57,7 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                 if (message.show == true) $('#error-dialog').show();
             break;
             case 'MEASUREMENT_GRAPHIC':
+                $('.script-name').text(MODE_TITLES[message.value]);
                 if (message.show == true) $('#measurement-screen').show();
                 if (message.value){
                     switch(message.value){
