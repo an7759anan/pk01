@@ -1,6 +1,14 @@
 const { ipcRenderer } = require('electron');
 const { drawInit, drawData, drawPicture } = require('./drawings');
 
+const MODE_TITLES = {
+    'TONE_SIGNAL_MEASUREMENT': 'ТЧ',
+    'SIGNAL_TO_NOISE_MEASUREMENT': 'Сигнал/Шум',
+    'FREE_CHANNEL_NOISE_MEASUREMENT': 'Шум',
+    'FREQUENCY_RESPONSE_MEASUREMENT': 'Частотная хар-ка',
+    'AMPLITUDE_RESPONSE_MEASUREMENT': 'Амплитудная хар-ка'
+}
+
 setTimeout(()=>{
     let dc = {};
     dc.DIAG_STROKE_WIDTH = 16;
@@ -105,6 +113,7 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                 }
             break;
             case 'MEASUREMENT_GRID':
+                $('.script-name').text(MODE_TITLES[message.value]);
                 if (message.show == true){ $(`#${message.value}`).show(); }
                 if (message.data && message.data.data) {
                     let data = message.data.data;
