@@ -23,7 +23,7 @@ const controller_dsp_init = (pDsp, pDm) => {
   vDsp = pDsp;
   vDm = pDm;
   vDsp.dspEmitter.on('dsp-response', args => {
-    if (vCmd) performResponse(args);
+    if (args.dataFromDsp.kf === 0x42 && vCmd) performResponse(args);
   });
 }
 
@@ -137,11 +137,11 @@ const performResponse = (args) => {
           break;
         }
       }
-      if (args.dataFromDsp["pp2"] && args.dataFromDsp["pp2"] > -80) {
+      // if (args.dataFromDsp["pp2"] && args.dataFromDsp["pp2"] <= -70) {
+      //   sendStopCommand();
+      // } else {
         dspEmitter.emit('controller-dsp-response', args);
-      } else {
-        sendStopCommand();
-      }
+      // }
       break;
     default:
       break;
