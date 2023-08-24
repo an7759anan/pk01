@@ -20,6 +20,7 @@ exports.drawData = (dataModel) => {
     bound = dataModel.boundaries.find(b => b.type == 'bottom');
     if (bound) path_bottom = createPath(dataModel, bound.line);
     dataModel.data.forEach(p => {
+        if (p.isDirty) return;
         let pp = calculateXY(dataModel.axisX.min,dataModel.axisX.max,dataModel.axisY.min,dataModel.axisY.max,p);
         ctx.beginPath();
         let color = path_top || path_bottom? 'green':'black';

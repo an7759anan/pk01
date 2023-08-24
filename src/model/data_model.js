@@ -102,6 +102,8 @@ const addDataFromDsp = (script, data) => {
         case 'AMPLITUDE_RESPONSE_MEASUREMENT':
             if (data["pp2"] != undefined && data["pp4"] != undefined) {
                 x = data["pp2"];
+                let _dublicate = dataModel.data.find(mark => mark.x === x);
+                if (_dublicate) _dublicate.isDirty = true;
                 y = data["pp2"] - data["pp4"];
                 dataModel.data.push({ "x": x, "y": y });
                 nominalizeAmplitudeResponseMarks(dataModel);
