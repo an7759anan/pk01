@@ -298,7 +298,6 @@ const eventLoop = (key) => {
          * Состояние для (1) Измерение сигнала ТЧ вручную и (3) Измерение шума свободного канала
          */
         case STATE_MEASUREMENT_GRID:
-            let prop;
             mode_measurement_value = dm.mode_measurement_values_table[mode_measurement_index];
             switch (key) {
                 case KEY_UP:
