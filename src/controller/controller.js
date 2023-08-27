@@ -203,7 +203,7 @@ const eventLoop = (key) => {
                 case KEY_ENTER:
                     if (prop.val > prop.range.max) prop.val = prop.range.max;
                     else if (prop.val < prop.range.min) prop.val = prop.range.min;
-                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: false });
+                    view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: false, data: dm.settings });
                     state = STATE_SETTINGS;
                     break;
                 case KEY_UP:
