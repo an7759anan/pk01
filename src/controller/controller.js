@@ -196,7 +196,7 @@ const eventLoop = (key) => {
                 } else {
                     prop.val = 10*prop.val + digit;
                 }
-                if (prop.val > prop.max) prop.val = prop.max;
+                if (prop.val > prop.range.max) prop.val = prop.range.max;
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: dm.settings });
                 break;
             }
