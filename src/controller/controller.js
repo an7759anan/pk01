@@ -41,6 +41,8 @@ const KEY_9 = 153;
 const KEY_0 = 154;
 const KEY_ENTER = 156;
 
+const DIGITS = [KEY_0,KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6,KEY_7,KEY_8,KEY_9];
+
 const STATE_INITIAL = 1;
 const STATE_MODE_DIALOG = 2;
 const STATE_ERROR_DIALOG = 3;
@@ -66,6 +68,8 @@ mode_transitions[MODE_MEASUREMENT_NORMATIVE][KEY_LEFT] = MODE_MEASUREMENT_GRAPHI
 let stop_clicks = 0;
 let sun_clicks = 0;
 let view, mode, state, viewTest;
+let settingEditInitial = true;
+let prop;
 
 const engine = new StormDB.localFileEngine("./db.stormdb");
 const db = new StormDB(engine);
@@ -145,6 +149,7 @@ const eventLoop = (key) => {
                     break;
                 case KEY_ENTER:
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true });
+                    settingEditInitial = true;
                     state = STATE_SETTINGS_EDIT_MODE;
                     break;
                 case KEY_MEASURE:
@@ -182,13 +187,25 @@ const eventLoop = (key) => {
             }
             break;
         case STATE_SETTINGS_EDIT_MODE:
+            prop = dm.settings[settings_prop];
+            let digit = DIGITS.indexOf(key);
+            if (["integer","float"].includes(prop.type) && prop.digit >= 0){
+                if (settingEditInitial){
+                    prop.val = digit;
+                    settingEditInitial = false;
+                } else {
+                    prop.val = 10*prop.val + digit;
+                }
+                if (prop.val > prop.max) prop.val = prop.max;
+                view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: dm.settings });
+                break;
+            }
             switch (key) {
                 case KEY_ENTER:
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: false });
                     state = STATE_SETTINGS;
                     break;
                 case KEY_UP:
-                    let prop = dm.settings[settings_prop];
                     switch (prop.type) {
                         case "integer":
                         case "float":
@@ -201,14 +218,13 @@ const eventLoop = (key) => {
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: dm.settings });
                     break;
                 case KEY_DOWN:
-                    let prop2 = dm.settings[settings_prop];
-                    switch (prop2.type) {
+                    switch (prop.type) {
                         case "integer":
                         case "float":
-                            prop2.val = Math.max(prop2.range.min, prop2.val - prop2.step);
+                            prop.val = Math.max(prop.range.min, prop.val - prop.step);
                             break;
                         case "enum":
-                            prop2.val = Math.max(0, prop2.val - 1);
+                            prop.val = Math.max(0, prop.val - 1);
                             break;
                     }
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: dm.settings });
