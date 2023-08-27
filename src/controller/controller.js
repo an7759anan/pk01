@@ -69,7 +69,7 @@ let stop_clicks = 0;
 let sun_clicks = 0;
 let view, mode, state, viewTest;
 let settingEditInitial = true;
-let prop;
+let prop = null;
 
 const engine = new StormDB.localFileEngine("./db.stormdb");
 const db = new StormDB(engine);
