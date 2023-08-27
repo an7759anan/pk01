@@ -6,3 +6,4 @@ out/*
 *.bin
 package-lock.json
 db.stormdb
+pk01-linux-arm64/*
