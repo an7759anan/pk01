@@ -189,7 +189,7 @@ const eventLoop = (key) => {
         case STATE_SETTINGS_EDIT_MODE:
             prop = dm.settings[settings_prop];
             let digit = DIGITS.indexOf(key);
-            if (["integer","float"].includes(prop.type) && prop.digit >= 0){
+            if (["integer","float"].includes(prop.type) && digit >= 0){
                 if (settingEditInitial){
                     prop.val = digit;
                     settingEditInitial = false;
