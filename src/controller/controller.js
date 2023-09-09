@@ -41,7 +41,7 @@ const KEY_9 = 153;
 const KEY_0 = 154;
 const KEY_ENTER = 156;
 
-const DIGITS = [KEY_0,KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6,KEY_7,KEY_8,KEY_9];
+const DIGITS = [KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9];
 
 const STATE_INITIAL = 1;
 const STATE_MODE_DIALOG = 2;
@@ -189,20 +189,27 @@ const eventLoop = (key) => {
         case STATE_SETTINGS_EDIT_MODE:
             prop = dm.settings[settings_prop];
             let digit = DIGITS.indexOf(key);
-            if (["integer","float"].includes(prop.type) && digit >= 0){
-                if (settingEditInitial){
+            if (["integer", "float"].includes(prop.type) && digit >= 0) {
+                if (settingEditInitial) {
                     prop.val = digit;
                     settingEditInitial = false;
                 } else {
-                    prop.val = 10*prop.val + digit;
+                    prop.val = 10 * prop.val + digit;
                 }
                 view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: true, data: dm.settings });
                 break;
             }
             switch (key) {
                 case KEY_ENTER:
-                    if (prop.val > prop.range.max) prop.val = prop.range.max;
-                    else if (prop.val < prop.range.min) prop.val = prop.range.min;
+                    switch (prop.type) {
+                        case "integer":
+                        case "float":
+                            if (prop.val > prop.range.max) prop.val = prop.range.max;
+                            else if (prop.val < prop.range.min) prop.val = prop.range.min;
+                            break;
+                        case "enum":
+                            break;
+                    }
                     view.webContents.send('CONTROLLER_TO_VIEW_MESSAGE', { screen: 'SETTINGS_GRID', value: settings_prop, edit: false, data: dm.settings });
                     state = STATE_SETTINGS;
                     break;
