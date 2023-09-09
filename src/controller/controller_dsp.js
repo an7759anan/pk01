@@ -63,7 +63,7 @@ const sendStartCommand = (pScriptIdx) => {
       // vCmd["p3.1"] = vDm.settings["gen-freq-val"].val;
       // vCmd["p6"] = vDm.settings["mes-voice1-val"].val;
       // vCmd["p11"] = cGenTranValStep;
-      vCmd["PSOF"] = 1;
+      vCmd["PSOF"] = vDm.settings["mes-psf-val"].val;
       break;
     case 4: // (4) Измерение частотной характеристики
       vCmd["p2"] = vDm.settings["gen-tran-val"].val + vDm.settings["gen-zero-val"].val;
