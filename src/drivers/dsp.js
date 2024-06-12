@@ -141,6 +141,7 @@ const sendCommand = (cmd) => {
     if (serialport && serialport.isOpen) {
         loadMode = false;
         let slipEncoded = prepareSlip(cmd);
+        console.log('===to serial port===>', slipEncoded)
         return { success: serialport.write(slipEncoded, 'binary'), content: Buffer.from(slipEncoded).toString('hex') };
     } else {
 

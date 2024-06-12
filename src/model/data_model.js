@@ -74,8 +74,11 @@ const addDataFromDsp = (script, data) => {
             break;
         case 'SIGNAL_TO_NOISE_MEASUREMENT':
             try {
-                x = 20 * Math.log10(data["p8"] / 10158);
-                y = 20 * Math.log10(data["p8"] / data["p9"]);
+                // здесь: p8 - ср.кв.ур-нь сигнал + шум, p9 - ср.кв.ур-нь шума
+                const noise = 20 * Math.log10(data["p9"] / 10158);
+                const noisePlusSignal = 20 * Math.log10(data["p8"] / 10158);
+                x = noisePlusSignal;
+                y = (noisePlusSignal - noise) / noise;
                 if (isFinite(x) && isFinite(y) && !isNaN(x) && !isNaN(y)) {
                     dataModel.data.push({ "x": x, "y": y });
                     return true;

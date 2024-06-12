@@ -1,6 +1,8 @@
 const { ipcMain } = require('electron');
 const slip = require('slip');
 const { EventEmitter } = require('events');
+const { readSamples } = require('../controller_dma/conroller_dma');
+const { process } = require('../model/signal_processing');
 
 class DspEmitterClass extends EventEmitter { };
 const dspEmitter = new DspEmitterClass();
@@ -9,6 +11,7 @@ let vDsp;
 let vDm;
 let vCmd = null;
 let vStep = 0;
+let vDmaActive = false;
 let vNominalValue = null;
 const cGenTranValStep = 5;  // Шаг величины выходного сигнала генератора
 const cGenTranVal = -55;    // Начальная величина выходного сигнала генератора для измерения Амплитудной характеристики
@@ -103,17 +106,24 @@ const performResponse = (args) => {
       dspEmitter.emit('controller-dsp-response', args);
       break;
     case 2: // (2) Измерение отношения Сигнал/Шум
-      if (++vStep > 5) {
+      if (!vDmaActive && ++vStep > 5) {
         vStep = 0;
-        args.dataFromDsp["p2"] = vCmd["p2"];
-        dspEmitter.emit('controller-dsp-response', args);
-        // vCmd["p2"] += vDm.settings["gen-tran-val"].step;
-        vCmd["p2"] += cGenTranValStep;
-        if (vCmd["p2"] <= vDm.settings["gen-tran-val"].range.max) {
-          vDsp.sendCommand(vCmd);
-        } else {
-          vCmd = null;
-        }
+        vDmaActive = true;
+        readSamples(`samples_${vCmd["p2"] < 0 ? 'm' + -vCmd["p2"] : 'p' + vCmd["p2"]}.txt`).then(samples => {
+          if (vCmd) {
+            args.dataFromDsp["p2"] = vCmd["p2"];
+            ({ p8: args.dataFromDsp["p8"], p9: args.dataFromDsp["p9"] } = process(samples));
+            dspEmitter.emit('controller-dsp-response', args);
+          }
+          // vCmd["p2"] += vDm.settings["gen-tran-val"].step;
+          vCmd["p2"] += cGenTranValStep;
+          if (vCmd["p2"] <= vDm.settings["gen-tran-val"].range.max) {
+            vDsp.sendCommand(vCmd);
+          } else {
+            vCmd = null;
+          }
+          vDmaActive = false;
+        });
       }
       break;
     case 3: // (3) Измерение шума свободного канала
@@ -140,7 +150,7 @@ const performResponse = (args) => {
       // if (args.dataFromDsp["pp2"] && args.dataFromDsp["pp2"] <= -70) {
       //   sendStopCommand();
       // } else {
-        dspEmitter.emit('controller-dsp-response', args);
+      dspEmitter.emit('controller-dsp-response', args);
       // }
       break;
     default:
