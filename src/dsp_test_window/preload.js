@@ -15,9 +15,11 @@ ipcRenderer.on('CONTROLLER_TO_VIEW_MESSAGE', (evt, message) => {
                 let d = message.data.dataFromDsp;
                 // dataFromDspText = `Вх.сиг: ${d["p8"]}; Шум: ${d["p9"]}; Ур.вх.сиг.: ${(20*Math.log10(d["p8"]/0.775)).toFixed(2)}; Отношение: ${(20*Math.log10(d["p8"]/d["p9"])).toFixed(2)}`
                 // dataFromDspText = `Вх.сиг: ${d["p8"]}; Шум: ${d["p9"]}; Ур.вх.сиг.: ${(20*Math.log10(d["p8"]/10158)).toFixed(2)}; Отношение: ${(20*Math.log10(d["p8"]/d["p9"])).toFixed(2)}`
-                const noise = 20 * Math.log10(d["p9"] / 10158);
-                const noisePlusSignal = 20 * Math.log10(d["p8"] / 10158);
-                dataFromDspText = `Ур.вх.сиг.: ${(noisePlusSignal - noise).toFixed(2)}; Отношение: ${((noisePlusSignal - noise) / noise).toFixed(2)}`
+                // const signal = d["p8"] / 10158;
+                // const noise = d["p9"] / 10158;
+                const signal = d["p8"];
+                const noise = d["p9"];
+                dataFromDspText = `Ур.вх.сиг.: ${20 * Math.log10(signal).toFixed(2)}; Отношение: ${20 * (Math.log10(signal) - Math.log10(noise)).toFixed(2)}`
             }
             $text.val(`${dataFromDspText}\n${$text.val()}`)
         }

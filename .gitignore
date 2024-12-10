@@ -7,3 +7,5 @@ out/*
 package-lock.json
 db.stormdb
 pk01-linux-arm64/*
+pk01_dma
+pk01_dma_old

@@ -17,9 +17,9 @@ const readSamples = (fileName) => {
                     cycle: +a[2],
                     value: +a[5]
                 }
-            }).splice(3); // Первые три отсчет стабильно отбрасываем...
+            }).splice(4); // Первые отсчеты отбрасываем...
             result.pop(); // Последний - тоже лишний
-            resolve(result.map(r => r.value));
+            resolve(result.filter(r => r.status === '*').map(r => r.value));
         })
 
     });
